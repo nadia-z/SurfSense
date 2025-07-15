@@ -1,2 +1,7 @@
-<h1>Pages#home</h1>
-<p>Find me in app/views/pages/home.html.erb</p>
+<div class="page-title"><h2>Welcome to SurfSense</h2></div>
+
+<% if user_signed_in? %>
+  <%= render "shared/search_bar" %>
+<% else %>
+  <%= link_to "Login", new_user_session_path, class: "nav-link"%>
+<% end %>

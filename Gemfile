@@ -4,6 +4,7 @@ ruby "3.3.5"
 
 gem "devise"
 
+gem "pg_search"
 
 gem "rollbar"
 gem "logger"
