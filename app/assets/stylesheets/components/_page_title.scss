@@ -1,6 +1,19 @@
 .page-title {
+  font-family: 'Shippori Mincho', serif;
+  color: white;
   display: flex;
   width: 100%;
   justify-content: center;
   margin: 5rem 0;
+}
+
+.page-title.home {
+  font-family: 'Shippori Mincho', serif;
+  color: white;
+  display: flex;
+  width: 100%;
+  font-size: x-large;
+  justify-content: center;
+  margin-top: 5rem;
+  margin-bottom: 1rem
 }
