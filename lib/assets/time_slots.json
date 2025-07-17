@@ -1,0 +1,220 @@
+{
+  "time-slots": [
+    {
+      "time": "Tue Jul 15 2025 02:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 38,
+      "swellHeight": 1,
+      "swellPeriod": 4.449999809265137,
+      "waveDirection": 28,
+      "waveHeight": 1.1200000047683716,
+      "wavePeriod": 5.400000095367432
+    },
+    {
+      "time": "Tue Jul 15 2025 03:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 40,
+      "swellHeight": 1,
+      "swellPeriod": 4.5,
+      "waveDirection": 28,
+      "waveHeight": 1.1399999856948853,
+      "wavePeriod": 5.449999809265137
+    },
+    {
+      "time": "Tue Jul 15 2025 04:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 42,
+      "swellHeight": 0.9800000190734863,
+      "swellPeriod": 4.650000095367432,
+      "waveDirection": 27,
+      "waveHeight": 1.1799999475479126,
+      "wavePeriod": 5.449999809265137
+    },
+    {
+      "time": "Tue Jul 15 2025 05:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 44,
+      "swellHeight": 0.9800000190734863,
+      "swellPeriod": 4.699999809265137,
+      "waveDirection": 27,
+      "waveHeight": 1.2000000476837158,
+      "wavePeriod": 5.5
+    },
+    {
+      "time": "Tue Jul 15 2025 06:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 41,
+      "swellHeight": 1.0399999618530273,
+      "swellPeriod": 4.699999809265137,
+      "waveDirection": 27,
+      "waveHeight": 1.2200000286102295,
+      "wavePeriod": 5.550000190734863
+    },
+    {
+      "time": "Tue Jul 15 2025 07:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 39,
+      "swellHeight": 1.0800000429153442,
+      "swellPeriod": 4.650000095367432,
+      "waveDirection": 28,
+      "waveHeight": 1.2400000095367432,
+      "wavePeriod": 5.599999904632568
+    },
+    {
+      "time": "Tue Jul 15 2025 08:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 36,
+      "swellHeight": 1.1399999856948853,
+      "swellPeriod": 4.650000095367432,
+      "waveDirection": 28,
+      "waveHeight": 1.2599999904632568,
+      "wavePeriod": 5.650000095367432
+    },
+    {
+      "time": "Tue Jul 15 2025 09:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 36,
+      "swellHeight": 1.1399999856948853,
+      "swellPeriod": 4.650000095367432,
+      "waveDirection": 28,
+      "waveHeight": 1.2599999904632568,
+      "wavePeriod": 5.699999809265137
+    },
+    {
+      "time": "Tue Jul 15 2025 10:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 35,
+      "swellHeight": 1.1399999856948853,
+      "swellPeriod": 4.650000095367432,
+      "waveDirection": 27,
+      "waveHeight": 1.2400000095367432,
+      "wavePeriod": 5.75
+    },
+    {
+      "time": "Tue Jul 15 2025 11:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 35,
+      "swellHeight": 1.1399999856948853,
+      "swellPeriod": 4.650000095367432,
+      "waveDirection": 27,
+      "waveHeight": 1.2400000095367432,
+      "wavePeriod": 5.800000190734863
+    },
+    {
+      "time": "Tue Jul 15 2025 12:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 35,
+      "swellHeight": 1.1399999856948853,
+      "swellPeriod": 4.650000095367432,
+      "waveDirection": 27,
+      "waveHeight": 1.2200000286102295,
+      "wavePeriod": 5.849999904632568
+    },
+    {
+      "time": "Tue Jul 15 2025 13:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 34,
+      "swellHeight": 1.1200000047683716,
+      "swellPeriod": 4.650000095367432,
+      "waveDirection": 26,
+      "waveHeight": 1.2200000286102295,
+      "wavePeriod": 5.900000095367432
+    },
+    {
+      "time": "Tue Jul 15 2025 14:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 34,
+      "swellHeight": 1.1200000047683716,
+      "swellPeriod": 4.699999809265137,
+      "waveDirection": 26,
+      "waveHeight": 1.2000000476837158,
+      "wavePeriod": 5.949999809265137
+    },
+    {
+      "time": "Tue Jul 15 2025 15:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 34,
+      "swellHeight": 1.100000023841858,
+      "swellPeriod": 4.75,
+      "waveDirection": 25,
+      "waveHeight": 1.2000000476837158,
+      "wavePeriod": 6
+    },
+    {
+      "time": "Tue Jul 15 2025 16:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 33,
+      "swellHeight": 1.0800000429153442,
+      "swellPeriod": 4.849999904632568,
+      "waveDirection": 24,
+      "waveHeight": 1.1799999475479126,
+      "wavePeriod": 6
+    },
+    {
+      "time": "Tue Jul 15 2025 17:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 33,
+      "swellHeight": 1.059999942779541,
+      "swellPeriod": 4.900000095367432,
+      "waveDirection": 23,
+      "waveHeight": 1.1799999475479126,
+      "wavePeriod": 6.050000190734863
+    },
+    {
+      "time": "Tue Jul 15 2025 18:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 31,
+      "swellHeight": 1.059999942779541,
+      "swellPeriod": 4.949999809265137,
+      "waveDirection": 22,
+      "waveHeight": 1.1799999475479126,
+      "wavePeriod": 6.099999904632568
+    },
+    {
+      "time": "Tue Jul 15 2025 19:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 30,
+      "swellHeight": 1.0399999618530273,
+      "swellPeriod": 5,
+      "waveDirection": 22,
+      "waveHeight": 1.159999966621399,
+      "wavePeriod": 6.150000095367432
+    },
+    {
+      "time": "Tue Jul 15 2025 20:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 28,
+      "swellHeight": 1.0399999618530273,
+      "swellPeriod": 5.050000190734863,
+      "waveDirection": 21,
+      "waveHeight": 1.159999966621399,
+      "wavePeriod": 6.199999809265137
+    },
+    {
+      "time": "Tue Jul 15 2025 21:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 27,
+      "swellHeight": 1.0399999618530273,
+      "swellPeriod": 5.099999904632568,
+      "waveDirection": 20,
+      "waveHeight": 1.159999966621399,
+      "wavePeriod": 6.25
+    },
+    {
+      "time": "Tue Jul 15 2025 22:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 27,
+      "swellHeight": 1.0399999618530273,
+      "swellPeriod": 5.099999904632568,
+      "waveDirection": 20,
+      "waveHeight": 1.1399999856948853,
+      "wavePeriod": 6.25
+    },
+    {
+      "time": "Tue Jul 15 2025 23:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 26,
+      "swellHeight": 1.0399999618530273,
+      "swellPeriod": 5.099999904632568,
+      "waveDirection": 19,
+      "waveHeight": 1.1399999856948853,
+      "wavePeriod": 6.300000190734863
+    },
+    {
+      "time": "Wed Jul 16 2025 00:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 26,
+      "swellHeight": 1.0399999618530273,
+      "swellPeriod": 5.099999904632568,
+      "waveDirection": 19,
+      "waveHeight": 1.1399999856948853,
+      "wavePeriod": 6.300000190734863
+    },
+    {
+      "time": "Wed Jul 16 2025 01:00:00 GMT+0200 (Central European Summer Time)",
+      "swellDirection": 26,
+      "swellHeight": 1.0399999618530273,
+      "swellPeriod": 5.099999904632568,
+      "waveDirection": 19,
+      "waveHeight": 1.1399999856948853,
+      "wavePeriod": 6.349999904632568
+    }
+  ]
+}

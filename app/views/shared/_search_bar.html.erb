@@ -1,0 +1,11 @@
+
+<div class="d-flex justify-content-center">
+  <%= form_tag "/", method: :get, class: "d-flex w-50 justify-content-center" do %>
+    <%= text_field_tag :query,
+      params[:query],
+      class: "form-control",
+      placeholder: "Search for a surf spot or area/country"
+    %>
+    <%= submit_tag "Search", class: "btn btn-outline-success my-2 my-sm-0" %>
+  <% end %>
+</div>

@@ -1,0 +1,26 @@
+<h1 style="margin-left: 3rem; margin-top: 2rem; margin-bottom: 0">Forecasts for the selected spot</h1>
+<div class="page-container-forecasts">
+  <div class="time-slots-container">
+    <% @forecasts.each_with_index do |data| %>
+      <% data[1].each_with_index do |slot, index|%>
+      <div class="card-time-slot">
+        <ul style="list-style: none; font-size: x-small; padding: 0;">
+          <div style="padding: 10px;">
+            <li><%= ((index + 2) % 24) %></li>
+            <li><%= slot["time"] %></li>
+            <li><strong>SwellDirection:</strong> <%=slot["swellDirection"] %></li>
+            <li><strong>SwellHeight:</strong> <%=slot["swellHeight"] %></li>
+            <li><strong>SwellPeriod:</strong> <%=slot["swellPeriod"] %></li>
+            <li><strong>WaveDirection:</strong> <%=slot["waveDirection"] %></li>
+            <li><strong>WaveHeight:</strong> <%=slot["waveHeight"] %></li>
+            <li><strong>WavePeriod:</strong> <%=slot["wavePeriod"] %></li>
+          </div>
+        </ul>
+      </div>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="single-slot-container">
+    <%= render "shared/single_slot_card" %>
+  </div>
+</div>

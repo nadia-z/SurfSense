@@ -1,0 +1,15 @@
+.location-card {
+  border-radius: 20px;
+  background-color: rgb(240, 231, 198);
+  box-shadow: 5px 10px black;
+  border: 2px solid black;
+  padding: 2rem;
+  width: 25%;
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translate(-3px, -5px);
+  }
+}

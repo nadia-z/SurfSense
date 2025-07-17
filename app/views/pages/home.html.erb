@@ -1,2 +1,31 @@
-<h1>Pages#home</h1>
-<p>Find me in app/views/pages/home.html.erb</p>
+<div class="page-title"><h2>Welcome to SurfSense</h2></div>
+
+<% if user_signed_in? %>
+  <%= render "shared/search_bar" %>
+<% else %>
+  <%= link_to "Login", new_user_session_path, class: "nav-link"%>
+<% end %>
+
+<div class="card-container">
+  <% if @locations %>
+    <% @locations.each do |location| %>
+      <div class="location-card" data-controller="card-toggle" data-action="click->card-toggle#fire">
+        <ul style="list-style: none; padding: 0;">
+          <li><%= location.break %></li>
+          <li><%= location.region %></li>
+          <li><%= location.country %></li>
+        </ul>
+        <div class="date-input mt-2 hidden" data-card-toggle-target="toggleableElement">
+          <%= simple_form_for :forecast, url: forecasts_path do |f| %>
+            <div>
+            <%= f.input :opening_date, as: :date %>
+            <%= f.button :submit %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <h3>Nothing here... Please try again</h3>
+  <% end %>
+</div>
