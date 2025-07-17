@@ -5,7 +5,7 @@ ruby "3.3.5"
 gem "devise"
 
 gem "pg_search"
-
+gem "flatpickr"
 gem "rollbar"
 gem "logger"
 gem "ostruct"
