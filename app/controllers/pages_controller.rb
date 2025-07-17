@@ -1,8 +1,9 @@
 class PagesController < ApplicationController
   def home
     if params[:query].present?
-      @location = Location.search_spot(params[:query])
+      @locations = Location.search_location(params[:query])
     else
-      @locations = Movie.where(suggested: true)
+      @locations = Location.where(suggested: true)
+    end
   end
 end

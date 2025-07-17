@@ -10,28 +10,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_15_223147) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_16_200208) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "locations", force: :cascade do |t|
-    t.string "address"
     t.float "latitude"
     t.float "longitude"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "suggested"
+    t.string "break"
+    t.string "region"
+    t.string "country"
     t.index ["user_id"], name: "index_locations_on_user_id"
   end
 
   create_table "selected_forecasts", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "location_id", null: false
-    t.time "time_slow"
+    t.time "time_slot"
     t.boolean "saved"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "swellDirection"
+    t.integer "swellHeight"
+    t.float "swellPeriod"
+    t.integer "waveDirection"
+    t.float "waveHeight"
+    t.float "wavePeriod"
     t.index ["location_id"], name: "index_selected_forecasts_on_location_id"
     t.index ["user_id"], name: "index_selected_forecasts_on_user_id"
   end

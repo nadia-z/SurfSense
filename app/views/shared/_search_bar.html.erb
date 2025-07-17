@@ -1,12 +1,11 @@
 
-<!--for now I left the search bar like this, I was thinking that there is no point
-   following the lectures about implementing search bars using ActiveRecord or the
-   Gem PG_search as we are not going to source our locations from a DB but from an
-   API (google perhaps)-->
-
-<div class="d-flex w-100 justify-content-center">
-  <form class="form-inline my-lg-0">
-    <input class="form-control mr-sm-2" type="search" placeholder="Search for a surf spot or area/country">
-    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-  </form>
+<div class="d-flex justify-content-center">
+  <%= form_tag "/", method: :get, class: "d-flex w-50 justify-content-center" do %>
+    <%= text_field_tag :query,
+      params[:query],
+      class: "form-control",
+      placeholder: "Search for a surf spot or area/country"
+    %>
+    <%= submit_tag "Search", class: "btn btn-outline-success my-2 my-sm-0" %>
+  <% end %>
 </div>

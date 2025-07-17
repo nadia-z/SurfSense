@@ -5,3 +5,20 @@
 <% else %>
   <%= link_to "Login", new_user_session_path, class: "nav-link"%>
 <% end %>
+
+<div class="card-container">
+  <% if @locations %>
+    <% @locations.each do |location| %>
+    <div class="location-card">
+      <ul style="list-style: none">
+        <li><%= location.break %></li>
+        <li><%= location.region %></li>
+        <li><%= location.country %></li>
+      </ul>
+      <%= link_to 'forecasts', forecasts_path%>
+    </div>
+    <% end %>
+  <% else %>
+    <%= "Nothing here... Please try again" %>
+  <% end %>
+</div>

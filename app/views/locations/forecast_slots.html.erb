@@ -1,0 +1,18 @@
+<h1>Forecasts for the selected spot</h1>
+<div class="time-slots-container">
+  <% @forecasts.each do |data| %>
+    <%= data[1].each do |slot|%>
+    <div class="card-time-slot">
+      <ul style="list-style: none; font-size: x-small; padding: 0;">
+        <li><%= slot["time"] %></li>
+        <li><%= slot["swellDirection"] %></li>
+        <li><%= slot["swellHeight"] %></li>
+        <li><%= slot["swellPeriod"] %></li>
+        <li><%= slot["waveDirection"] %></li>
+        <li><%= slot["waveHeight"] %></li>
+        <li><%= slot["wavePeriod"] %></li>
+      </ul>
+    </div>
+    <% end %>
+  <% end %>
+</div>
