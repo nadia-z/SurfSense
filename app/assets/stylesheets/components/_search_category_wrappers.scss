@@ -51,12 +51,42 @@
   margin-left: 2rem;
 }
 
-.dropdown-toggle-split {
-  padding-right: 0px;
+.btn.dropdown-toggle.dropdown-toggle-split {
+  padding: 0px;
+}
+
+.dropdown-toggle-split.show {
+  padding: 0px;
 }
 
 .dropdown-menu {
+  background-color: white;
+  box-shadow: 5px 10px 10px #10292f;
   border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;  /* Add vertical scrolling */
+  overflow-x: hidden;  /* Hide horizontal scrolling */
+  font-family: 'Shippori Mincho', serif;
+  color: #1D4853;
+
+  /* Optional: Custom scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
 }
 
 .btn-group {
