@@ -1,8 +1,95 @@
-.country-wrapper .region-wrapper .break-wrapper{
+.country-wrapper,
+.region-wrapper,
+.break-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: auto;
 
-
-  .btn-region .btn.country .btn-break {
-    text-align: start;
-
+  h5 {
+    font-family: 'Shippori Mincho', serif;
+    color: #1D4853;
   }
+
+  .btn-group {
+    align-self: flex-start;
+    width: 100%;
+  }
+}
+
+.btn.btn-country,
+.btn.btn-region,
+.btn.btn-break {
+  align-self: flex-start;
+  text-align: left;
+  width: fit-content;
+  font-family: 'Shippori Mincho', serif;
+  color: #1D4853;
+  font-size:x-large;
+  padding: 0;
+  padding-right: 15px;
+}
+
+.category-title {
+  margin-bottom: 0.25rem;
+}
+
+.country-wrapper {
+  padding-right: 4rem;
+}
+
+.region-wrapper {
+  padding-left: 6rem;
+  padding-right: 6rem;
+  border-left: 2px solid #1D4853;
+  border-right: 2px solid #1D4853;
+
+}
+
+.break-wrapper {
+  margin-left: 2rem;
+}
+
+.btn.dropdown-toggle.dropdown-toggle-split {
+  padding: 0px;
+}
+
+.dropdown-toggle-split.show {
+  padding: 0px;
+}
+
+.dropdown-menu {
+  background-color: white;
+  box-shadow: 5px 10px 10px #10292f;
+  border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;  /* Add vertical scrolling */
+  overflow-x: hidden;  /* Hide horizontal scrolling */
+  font-family: 'Shippori Mincho', serif;
+  color: #1D4853;
+
+  /* Optional: Custom scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: row;
 }
