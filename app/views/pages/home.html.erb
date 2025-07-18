@@ -2,48 +2,82 @@
   <h3 class="page-title home">A guided surf-forecast for beginner surfer</h3>
   <div class="search-wrapper">
     <div class="country-wrapper">
-      <div class="btn-group">
-      <button type="button" class="btn btn-country">Country</button>
-      <button type="button" class="btn btn-country dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="visually-hidden">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Action</a></li>
-        <li><a class="dropdown-item" href="#">Another action</a></li>
-        <li><a class="dropdown-item" href="#">Something else here</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#">Separated link</a></li>
-      </ul>
+      <h5 class="category-title">Country</h5>
+      <div class="btn-group" data-controller="dropdown">
+        <button type="button"
+                class="btn btn-country"
+                data-dropdown-target="button">Country</button>
+        <button type="button"
+                class="btn btn-country dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" data-dropdown-target="menu">
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Spain</a></li>
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Portugal</a></li>
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">France</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Other</a></li>
+        </ul>
       </div>
     </div>
     <div class="region-wrapper">
-      <div class="btn-group">
-      <button type="button" class="btn btn-region">Region</button>
-      <button type="button" class="btn btn-region dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="visually-hidden">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Action</a></li>
-        <li><a class="dropdown-item" href="#">Another action</a></li>
-        <li><a class="dropdown-item" href="#">Something else here</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#">Separated link</a></li>
-      </ul>
+      <h5 class="category-title">Region</h5>
+      <div class="btn-group" data-controller="dropdown">
+        <button type="button"
+                class="btn btn-region"
+                data-dropdown-target="button">Region</button>
+        <button type="button"
+                class="btn btn-region dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" data-dropdown-target="menu">
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Canary Islands</a></li>
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Basque Country</a></li>
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Algarve</a></li>
+        </ul>
       </div>
     </div>
     <div class="break-wrapper">
-      <div class="btn-group">
-      <button type="button" class="btn btn-break">Break</button>
-      <button type="button" class="btn btn-break dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="visually-hidden">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Action</a></li>
-        <li><a class="dropdown-item" href="#">Another action</a></li>
-        <li><a class="dropdown-item" href="#">Something else here</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#">Separated link</a></li>
-      </ul>
+      <h5 class="category-title">Break</h5>
+      <div class="btn-group" data-controller="dropdown">
+        <button type="button"
+                class="btn btn-break"
+                data-dropdown-target="button">Break</button>
+        <button type="button"
+                class="btn btn-break dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" data-dropdown-target="menu">
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Los Enanos</a></li>
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Mundaka</a></li>
+          <li><a class="dropdown-item"
+                 href="#"
+                 data-action="click->dropdown#selectItem">Ericeira</a></li>
+        </ul>
       </div>
     </div>
   </div>
