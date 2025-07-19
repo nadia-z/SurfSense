@@ -1,0 +1,29 @@
+<div class="<%= wrapper_class %>">
+      <h5 class="category-title"><%= title %></h5>
+      <div class="btn-group"
+           data-controller="dropdown"
+           data-dropdown-type-value="<%= dropdown_type %>"
+           data-dropdown-locations-value="<%= @locations_structure.to_json %>">
+        <button type="button"
+                class="btn <%= button_class %>"
+                data-dropdown-target="button"><%= button_text %></button>
+        <button type="button"
+                class="btn <%= button_class %> dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" data-dropdown-target="menu">
+          <% if items.present? %>
+            <% items.each do |item| %>
+            <li><a class="dropdown-item"
+                   href="#"
+                   data-value="<%= item %>"
+                   data-action="click->dropdown#selectItem"><%= item %></a></li>
+            <% end %>
+          <% else %>
+            <li><span class="dropdown-item-text text-muted"><%= placeholder_text %></span></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>

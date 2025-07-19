@@ -2,77 +2,36 @@
   <h3 class="page-title home">A guided surf-forecast for beginner surfer</h3>
   <div class="search-wrapper">
 
-    <div class="country-wrapper">
-      <h5 class="category-title">Country</h5>
 <!--!     COUNTRY BUTTON AND DROPDOWN     -->
-      <div class="btn-group"
-           data-controller="dropdown"
-           data-dropdown-type-value="country"
-           data-dropdown-locations-value="<%= @locations_structure.to_json %>">
-        <button type="button"
-                class="btn btn-country"
-                data-dropdown-target="button">Country</button>
-        <button type="button"
-                class="btn btn-country dropdown-toggle dropdown-toggle-split"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-          <span class="visually-hidden">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu" data-dropdown-target="menu">
-          <% @countries.each do |country| %>
-          <li><a class="dropdown-item"
-                 href="#"
-                 data-value="<%= country %>"
-                 data-action="click->dropdown#selectItem"><%= country %></a>
-          </li>
-          <% end %>
-        </ul>
-      </div>
-    </div>
+    <%= render "shared/dropdown_menu",
+      wrapper_class: 'country-wrapper',
+      title: 'Country',
+      dropdown_type: 'country',
+      button_class: 'btn-country',
+      button_text: 'Country',
+      items: @countries,
+      placeholder_text: 'Select a country' %>
 
-    <div class="region-wrapper">
-      <h5 class="category-title">Region</h5>
 <!--!     REGION BUTTON AND DROPDOWN     -->
-      <div class="btn-group"
-           data-controller="dropdown"
-           data-dropdown-type-value="region"
-           data-dropdown-locations-value="<%= @locations_structure.to_json %>">
-        <button type="button"
-                class="btn btn-region"
-                data-dropdown-target="button">Region</button>
-        <button type="button"
-                class="btn btn-region dropdown-toggle dropdown-toggle-split"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-          <span class="visually-hidden">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu" data-dropdown-target="menu">
-          <li><span class="dropdown-item-text text-muted">Select a country first</span></li>
-        </ul>
-      </div>
-    </div>
+    <%= render "shared/dropdown_menu",
+      wrapper_class: 'region-wrapper',
+      title: 'Region',
+      dropdown_type: 'region',
+      button_class: 'btn-region',
+      button_text: 'Region',
+      items: @regions,
+      placeholder_text: 'Select a country first' %>
 
-    <div class="break-wrapper">
-      <h5 class="category-title">Break</h5>
 <!--!     BREAK BUTTON AND DROPDOWN     -->
-      <div class="btn-group"
-           data-controller="dropdown"
-           data-dropdown-type-value="break"
-           data-dropdown-locations-value="<%= @locations_structure.to_json %>">
-        <button type="button"
-                class="btn btn-break"
-                data-dropdown-target="button">Break</button>
-        <button type="button"
-                class="btn btn-break dropdown-toggle dropdown-toggle-split"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-          <span class="visually-hidden">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu" data-dropdown-target="menu">
-          <li><span class="dropdown-item-text text-muted">Select a region first</span></li>
-        </ul>
-      </div>
-    </div>
+    <%= render "shared/dropdown_menu",
+      wrapper_class: 'break-wrapper',
+      title: 'Break',
+      dropdown_type: 'break',
+      button_class: 'btn-break',
+      button_text: 'Break',
+      items: @breaks,
+      placeholder_text: 'Select a country first' %>
+
   </div>
 </div>
 
