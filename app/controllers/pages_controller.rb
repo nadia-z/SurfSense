@@ -35,7 +35,7 @@ class PagesController < ApplicationController
       region = country_parts[1..2].compact.join(', ')
 
       # Get break data
-      break_name = spot['name']
+      break_name = spot['name'].capitalize
       latitude = spot['lat']
       longitude = spot['lng']
 

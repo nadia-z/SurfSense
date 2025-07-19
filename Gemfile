@@ -10,6 +10,8 @@ gem "rollbar"
 gem "logger"
 gem "ostruct"
 
+gem 'open-meteo'
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.5", ">= 7.1.5.1"
 
