@@ -35,42 +35,15 @@
   </div>
 </div>
 
-
-
-
-
-<!--
-<% if user_signed_in? %>
-  <%= render "shared/search_bar" %>
-<% else %>
-  <%= link_to "Login", new_user_session_path, class: "nav-link"%>
-<% end %>
-
+<!--! Hidden templates for JavaScript to use -->
+<div style="display: none;">
+  <div id="weather-template">
+    <%= render 'shared/weather_display' %>
+  </div>
+  <div id="card-template"
+       data-controller="forecast"
+       data-dropdown-target="card"
+       data-action="click->forecast#focusOnCard">
+    <%= render 'shared/break_card' %>
+  </div>
 </div>
--->
-
-
-<!--
-<div class="card-container">
-  <% if @locations %>
-    <% @locations.each do |location| %>
-      <div class="location-card" data-controller="card-toggle" data-action="click->card-toggle#fire">
-        <ul style="list-style: none; padding: 0;">
-          <li><%= location.break %></li>
-          <li><%= location.region %></li>
-          <li><%= location.country %></li>
-        </ul>
-        <div class="date-input mt-2 hidden" data-card-toggle-target="toggleableElement">
-          <%= simple_form_for :forecast, url: forecasts_path do |f| %>
-            <div>
-            <%= f.input :opening_date, as: :date %>
-            <%= f.button :submit %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-  <% else %>
-    <h3>Nothing here... Please try again</h3>
-  <% end %>
--->

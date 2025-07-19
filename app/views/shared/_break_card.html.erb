@@ -1,0 +1,36 @@
+<div class="card-body"
+     data-controller="forecast"
+     data-dropdown-target="card"
+     data-action="click->forecast#focusOnCard">
+  <h5 class="card-title" data-card="break-name">Loading...</h5>
+  <p class="card-text">
+    <small class="text-muted"><span data-card="region">--</span>, <span data-card="country">--</span></small><br>
+    <small class="text-muted">Lat: <span data-card="latitude">--</span></small>
+    <small class="text-muted">Lng: <span data-card="longitude">--</span></small>
+  </p>
+  <div class="weather-info" data-card="weather-container">
+    <div class="spinner-border spinner-border-sm" role="status">
+      <span class="visually-hidden">Loading weather...</span>
+    </div>
+    <span class="ms-2">Loading weather data...</span>
+  </div>
+</div>
+<!--  Hidden card with full forecast information trigged when selecting a card  -->
+<div class="card-body-long d-none"
+     data-controller="forecast"
+     data-dropdown-target="card"
+     data-action="click->forecast#focusOnCard">
+  <h5 class="card-title" data-card="break-name">Loading...</h5>
+  <p class="card-text">
+    <small class="text-muted"><span data-card="region">--</span>, <span data-card="country">--</span></small><br>
+    <small class="text-muted">Lat: <span data-card="latitude">--</span></small>
+    <small class="text-muted">Lng: <span data-card="longitude">--</span></small>
+  </p>
+  <div class="weather-info" data-card="weather-container">
+    <div style="height: 200px; background-color: red;"></div>
+    <div class="spinner-border spinner-border-sm" role="status">
+      <span class="visually-hidden">Loading weather...</span>
+    </div>
+    <span class="ms-2">Loading weather data...</span>
+  </div>
+</div>
