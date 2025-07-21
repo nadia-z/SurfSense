@@ -7,14 +7,14 @@ export default class extends Controller {
 
   connect() {
     this.locationsData = this.locationsValue
-    console.log("Locations structure:", this.locationsData)
-    console.log("Countries data:", this.locationsData?.countries)
-    console.log("Type of locationsData:", typeof this.locationsData)
-
-    // Store the dropdown type (country, region, break)
     this.dropdownType = this.typeValue
-    console.log("Dropdown type:", this.dropdownType)
+
+    // Cache the templates from the DOM
+    this.weatherTemplate = document.getElementById('weather-template').innerHTML
+    this.cardTemplate = document.getElementById('card-template').innerHTML
   }
+// API request snippet from API documentation, add data requests here following documentation
+// in case we want to have more information about the forecast
 
   async fetchWeatherData(lat, lng, breakName) {
     try {
@@ -71,7 +71,7 @@ export default class extends Controller {
     const weatherContainer = document.getElementById(`weather-${breakName.replace(/\s+/g, '-')}`)
     if (!weatherContainer) return
 
-    // Get current conditions (first hour)
+    // Get current conditions (same calculation code as before)
     const currentHour = 0
     const now = weatherData.hourly.time[currentHour]
     const currentWaveHeight = weatherData.hourly.waveHeight[currentHour]
@@ -85,43 +85,57 @@ export default class extends Controller {
     const todayMaxWave = Math.max(...weatherData.hourly.waveHeight.slice(0, 24))
     const todayMaxSwell = Math.max(...weatherData.hourly.swellWaveHeight.slice(0, 24))
 
-    // Format direction to compass point
+    // Helper functions (same as before)
     const getCompassDirection = (degrees) => {
       if (degrees === null || degrees === undefined) return 'N/A'
       const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
       return directions[Math.round(degrees / 22.5) % 16]
     }
 
-    // Format numbers to 1 decimal place
     const formatValue = (value) => {
       return value !== null && value !== undefined ? value.toFixed(1) : 'N/A'
     }
 
-    weatherContainer.innerHTML = `
-      <div class="row">
-        <div class="col-md-6">
-          <h6>Current Wave Conditions</h6>
-          <p class="mb-1"><strong>Wave Height:</strong> ${formatValue(currentWaveHeight)}m</p>
-          <p class="mb-1"><strong>Wave Direction:</strong> ${getCompassDirection(currentWaveDirection)} (${formatValue(currentWaveDirection)}°)</p>
-          <p class="mb-1"><strong>Wave Period:</strong> ${formatValue(currentWavePeriod)}s</p>
-          <p class="mb-1"><strong>Today's Max:</strong> ${formatValue(todayMaxWave)}m</p>
-        </div>
-        <div class="col-md-6">
-          <h6>Swell Conditions</h6>
-          <p class="mb-1"><strong>Swell Height:</strong> ${formatValue(currentSwellHeight)}m</p>
-          <p class="mb-1"><strong>Swell Direction:</strong> ${getCompassDirection(currentSwellDirection)} (${formatValue(currentSwellDirection)}°)</p>
-          <p class="mb-1"><strong>Swell Period:</strong> ${formatValue(currentSwellPeriod)}s</p>
-          <p class="mb-1"><strong>Today's Max Swell:</strong> ${formatValue(todayMaxSwell)}m</p>
-        </div>
-      </div>
-      <div class="row mt-2">
-        <div class="col-12">
-          <small class="text-muted">
-            <i class="fas fa-clock"></i> Updated: ${now.toLocaleTimeString()} (${weatherData.location.timezone})
-          </small>
-        </div>
-      </div>
-    `
+    // Use the template instead of inline HTML
+    weatherContainer.innerHTML = this.weatherTemplate
+
+    // Populate the data using data attributes
+    weatherContainer.querySelector('[data-weather="wave-height"]').textContent = formatValue(currentWaveHeight)
+    weatherContainer.querySelector('[data-weather="wave-direction"]').textContent = `${getCompassDirection(currentWaveDirection)} (${formatValue(currentWaveDirection)}°)`
+    weatherContainer.querySelector('[data-weather="wave-period"]').textContent = formatValue(currentWavePeriod)
+    weatherContainer.querySelector('[data-weather="max-wave"]').textContent = formatValue(todayMaxWave)
+    weatherContainer.querySelector('[data-weather="swell-height"]').textContent = formatValue(currentSwellHeight)
+    weatherContainer.querySelector('[data-weather="swell-direction"]').textContent = `${getCompassDirection(currentSwellDirection)} (${formatValue(currentSwellDirection)}°)`
+    weatherContainer.querySelector('[data-weather="swell-period"]').textContent = formatValue(currentSwellPeriod)
+    weatherContainer.querySelector('[data-weather="max-swell"]').textContent = formatValue(todayMaxSwell)
+    weatherContainer.querySelector('[data-weather="timestamp"]').textContent = now.toLocaleTimeString()
+    weatherContainer.querySelector('[data-weather="timezone"]').textContent = weatherData.location.timezone
+  }
+
+  createBreakCard(breakName, region, country, breakData) {
+    const card = document.createElement('div')
+    card.className = 'break-card card mb-3'
+    card.dataset.lat = breakData.latitude
+    card.dataset.lng = breakData.longitude
+
+    // Use the template instead of inline HTML
+    card.innerHTML = this.cardTemplate
+
+    // Populate the card data using data attributes
+    card.querySelector('[data-card="break-name"]').textContent = breakName
+    card.querySelector('[data-card="region"]').textContent = region
+    card.querySelector('[data-card="country"]').textContent = country
+    card.querySelector('[data-card="latitude"]').textContent = breakData.latitude
+    card.querySelector('[data-card="longitude"]').textContent = breakData.longitude
+
+    // Set the weather container ID
+    const weatherContainer = card.querySelector('[data-card="weather-container"]')
+    weatherContainer.id = `weather-${breakName.replace(/\s+/g, '-')}`
+
+    // Fetch weather data for this break
+    this.fetchWeatherData(breakData.latitude, breakData.longitude, breakName)
+
+    return card
   }
 
   displayWeatherError(breakName) {
@@ -263,22 +277,19 @@ export default class extends Controller {
     card.dataset.lat = breakData.latitude
     card.dataset.lng = breakData.longitude
 
-    card.innerHTML = `
-      <div class="card-body">
-        <h5 class="card-title">${breakName}</h5>
-        <p class="card-text">
-          <small class="text-muted">${region}, ${country}</small><br>
-          <small class="text-muted">Lat: ${breakData.latitude}</small>
-          <small class="text-muted">Lng: ${breakData.longitude}</small>
-        </p>
-        <div class="weather-info" id="weather-${breakName.replace(/\s+/g, '-')}">
-          <div class="spinner-border spinner-border-sm" role="status">
-            <span class="visually-hidden">Loading weather...</span>
-          </div>
-          <span class="ms-2">Loading weather data...</span>
-        </div>
-      </div>
-    `
+    // Use the template instead of inline HTML
+    card.innerHTML = this.cardTemplate
+
+    // Populate the card data using data attributes
+    card.querySelector('[data-card="break-name"]').textContent = breakName
+    card.querySelector('[data-card="region"]').textContent = region
+    card.querySelector('[data-card="country"]').textContent = country
+    card.querySelector('[data-card="latitude"]').textContent = breakData.latitude
+    card.querySelector('[data-card="longitude"]').textContent = breakData.longitude
+
+    // Set the weather container ID
+    const weatherContainer = card.querySelector('[data-card="weather-container"]')
+    weatherContainer.id = `weather-${breakName.replace(/\s+/g, '-')}`
 
     // Fetch weather data for this break
     this.fetchWeatherData(breakData.latitude, breakData.longitude, breakName)
