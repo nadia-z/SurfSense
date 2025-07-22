@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Flowchart JS loaded");
   const flowchartBtn = document.getElementById("show-flowchart-button");
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
             feDropShadow.setAttribute("dx", dx);
             feDropShadow.setAttribute("dy", dy);
             feDropShadow.setAttribute("stdDeviation", "1");
-            feDropShadow.setAttribute("flood-color", "#d7fafcff");
+            feDropShadow.setAttribute("flood-color", "#b7d4daff");
             feDropShadow.setAttribute("flood-opacity", "0.9");
             return feDropShadow;
           }
@@ -75,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
           edges.forEach(edge => {
             edge.style.visibility = "hidden";
             edge.setAttribute("stroke-width", "1");
-            edge.setAttribute("stroke", "white");
+            edge.setAttribute("stroke", "#D8E6E7");
           });
           nodes.forEach(node => (node.style.visibility = "hidden"));
         }
@@ -128,18 +129,18 @@ document.addEventListener("DOMContentLoaded", () => {
               }
               if (lastClickedTextElement) {
                 const tag = lastClickedTextElement.tagName.toLowerCase();
-                lastClickedTextElement.setAttribute("fill", tag === "text" ? "black" : "white");
+                lastClickedTextElement.setAttribute("fill", tag === "text" ? "black" : "#DEEEEF");
               }
 
               revealedNodes.forEach(revealedId => {
                 const revealedNode = svg.getElementById(revealedId);
                 if (!revealedNode) return;
                 const element = revealedNode.querySelector("path, text");
-                if (element) element.setAttribute("fill", "white");
+                if (element) element.setAttribute("fill", "#DEEEEF");
               });
 
               highlightedEdges.forEach(edge => {
-                edge.setAttribute("stroke", "white");
+                edge.setAttribute("stroke", "#D8E6E7");
                 edge.setAttribute("stroke-width", "1");
               });
               highlightedEdges = [];
@@ -147,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
               const target = node.querySelector("path, text");
               if (target) {
                 const glowClone = target.cloneNode(true);
-                glowClone.setAttribute("fill", "#d7fafcff");
+                glowClone.setAttribute("fill", "#c5dce1ff");
                 glowClone.setAttribute("filter", "url(#glow)");
                 glowClone.style.pointerEvents = "none";
                 target.parentNode.insertBefore(glowClone, target);
@@ -164,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (fromId === nodeId) {
                   edge.style.visibility = "visible";
-                  edge.setAttribute("stroke", "#82f1f7ff");
+                  edge.setAttribute("stroke", "#ffffffff");
                   edge.setAttribute("stroke-width", "1");
                   highlightedEdges.push(edge);
 
@@ -172,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   if (nextNode) {
                     nextNode.style.visibility = "visible";
                     nextNode.removeAttribute("filter");
-                    nextNode.querySelector("path, text").setAttribute("fill", "#82f1f7ff");
+                    nextNode.querySelector("path, text").setAttribute("fill", "#ffffffff");
                     nextNode.style.pointerEvents = "auto";
 
                     revealedNodes.add(nextNode.id);
