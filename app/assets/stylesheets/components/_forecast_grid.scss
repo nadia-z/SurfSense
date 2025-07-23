@@ -1,0 +1,54 @@
+.forecast-grid {
+  display: grid;
+  grid-template-columns: 150px repeat(6, 1fr); /* label + 4 time slots */
+  gap: 8px;
+  padding: 16px;
+  font-family: sans-serif;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.time-label {
+  background: #F3EF66;
+  border-radius: 10px;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px 0;
+  margin: 0px 30px;
+}
+.time-label:hover,
+.time-label.hovered {
+  background-color: #9f9929;
+  cursor: pointer;
+}
+
+.label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.cell-group {
+  background: #D9EBEC;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  font-weight: 500;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+/* Styling the separators (–) inside the cell-group */
+.cell-group span:not([data-forecast]) {
+  color: #555;
+}
+
+
+
+/* Highlight cells in hovered column */

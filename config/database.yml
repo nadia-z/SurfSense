@@ -78,7 +78,4 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  database: surf_sense_production
-  username: surf_sense
-  password: <%= ENV["SURF_SENSE_DATABASE_PASSWORD"] %>
+  url: <%= ENV["DATABASE_URL"] %>
