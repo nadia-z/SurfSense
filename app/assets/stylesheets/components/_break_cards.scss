@@ -1,10 +1,11 @@
+
 .break-cards {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
   gap: 1.5rem;
   margin-top: 7rem;
-  width: 90%;
+  width: 1200px;
 }
 
 .break-card {
@@ -24,6 +25,11 @@
     font-weight: 600;
     color: #2c3e50;
     margin-bottom: 0.5rem;
+    padding-left: 1rem;
+  }
+
+  .card-text {
+    margin-left: 1rem
   }
 
   .weather-info {

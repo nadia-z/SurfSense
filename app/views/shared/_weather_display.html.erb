@@ -7,18 +7,21 @@
     <p class="mb-1"><strong>Today's Max:</strong> <span data-weather="max-wave">--</span>m</p>
   </div>
   <div class="col-md-6">
-    <h6>Swell Conditions</h6>
+    <h6>Current Swell Conditions</h6>
     <p class="mb-1"><strong>Swell Height:</strong> <span data-weather="swell-height">--</span>m</p>
     <p class="mb-1"><strong>Swell Direction:</strong> <span data-weather="swell-direction">--</span></p>
     <p class="mb-1"><strong>Swell Period:</strong> <span data-weather="swell-period">--</span>s</p>
     <p class="mb-1"><strong>Today's Max Swell:</strong> <span data-weather="max-swell">--</span>m</p>
   </div>
 </div>
+<div style="margin-top: 1rem;">
+  <%= render 'shared/forecast_grid' %>
+</div>
 <div class="row mt-2">
-  <div class="col-12">
+  <div class="col-12" style="display: flex; justify-content: space-between;">
     <small class="text-muted">
       <i class="fas fa-clock"></i> Updated: <span data-weather="timestamp">--</span> (<span data-weather="timezone">--</span>)
     </small>
+    <button id="btn-back" class="btn btn-primary"><a class="dropdown-item" href="#" data-value="" data-action="click-&gt;dropdown#selectItem"> Back to 'All Regions'</a></button>
   </div>
 </div>
-<%= render 'shared/forecast_grid' %>

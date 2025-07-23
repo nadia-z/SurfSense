@@ -1,11 +1,22 @@
 .forecast-grid {
-  display: grid;
+  display: none;
   grid-template-columns: 150px repeat(6, 1fr); /* label + 4 time slots */
   gap: 8px;
   padding: 16px;
+  padding-left: 0px;
   font-family: sans-serif;
   max-width: 1200px;
-  margin: auto;
+  margin: auto 0px;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  border-top: 1px solid rgb(210, 210, 210);
+  margin-top: 2rem;
+}
+
+#btn-back {
+  display: none;
+  background-color: #385a617a;
+  border-radius: 5px;
 }
 
 .time-label {
@@ -22,11 +33,19 @@
   cursor: pointer;
 }
 
+.time-label.flowchart-btn {
+  margin-bottom: 1rem;
+}
+
 .label {
+  background-color: #ece7f4;
+  border-radius: 10px;
   font-weight: bold;
   display: flex;
   align-items: center;
   margin-bottom: 6px;
+  padding-left: 1rem;
+  margin-right: 2rem;
 }
 
 .cell-group {
