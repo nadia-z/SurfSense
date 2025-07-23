@@ -26,16 +26,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const edges = svg.querySelectorAll('[id^="e-"]');
         const nodes = svg.querySelectorAll('[id^="sn-"], [id^="qsn-"]');
 
+        // Helper to hide all nodes and edges
+        function hideAllElements(edges, nodes) {
+          edges.forEach(edge => {
+            edge.style.visibility = "hidden";
+            edge.setAttribute("stroke-width", "1");
+            edge.setAttribute("stroke", "#D8E6E7");
+          });
+          nodes.forEach(node => (node.style.visibility = "hidden"));
+        }
+
         // Add transparent padding rects for better click areas
         nodes.forEach(node => addPaddingRect(node));
 
         // Hide everything initially
-        edges.forEach(edge => {
-          edge.style.visibility = "hidden";
-          edge.setAttribute("stroke-width", "1");
-          edge.setAttribute("stroke", "#D8E6E7");
-        });
-        nodes.forEach(node => (node.style.visibility = "hidden"));
+        hideAllElements(edges, nodes);
 
         // Show some initial nodes and edges
         [0, 1, 2, 14].forEach(i => {
@@ -62,8 +67,18 @@ document.addEventListener("DOMContentLoaded", () => {
           applyBlur(node);
         });
 
-        // Initialize click listeners with helpers
+        // Initialize node interactions
         initializeNodeClickListeners(nodes, edges, svg, { applyBlur, removeBlur });
+
+        // Add click listener for "short version" link
+        const shortVersionLink = svg.getElementById("short-answer");
+        if (shortVersionLink) {
+          shortVersionLink.style.cursor = "pointer";
+          shortVersionLink.addEventListener("click", () => {
+            console.log("hello from link");
+            hideAllElements(edges, nodes);
+          });
+        }
       });
   });
 });

@@ -1,4 +1,5 @@
 export function initializeNodeClickListeners(nodes, edges, svg, helpers) {
+
   const { applyBlur, removeBlur } = helpers;
 
   const revealedNodes = new Set();
