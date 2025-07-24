@@ -1,6 +1,5 @@
 require 'json'
 
-
 class PagesController < ApplicationController
   def home
     file = File.read('app/javascript/data/surf_spots.json')
@@ -21,9 +20,7 @@ class PagesController < ApplicationController
     end
   end
 
-  private
-
-  def build_locations_structure(locations_data)
+  private  def build_locations_structure(locations_data)
     structure = { "countries" => {} }
 
     locations_data.each do |spot|

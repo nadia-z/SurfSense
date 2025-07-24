@@ -1,0 +1,13 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  margin: 6rem auto 0 auto; // Top margin 6rem, auto left/right for centering
+  background-color: white;
+  max-width: 700px;
+  padding: 2rem;
+  border-radius: 20px;
+  border: 2px solid  #1b393f;
+  box-shadow: 5px 10px 25px #0d1c1f;
+}
