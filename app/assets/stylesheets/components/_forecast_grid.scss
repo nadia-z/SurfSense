@@ -19,6 +19,13 @@
   border-radius: 5px;
 }
 
+.time-label.flowchart-btn {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-clip: padding-box;
+}
+
 .time-label {
   background: #F3EF66;
   border-radius: 10px;
