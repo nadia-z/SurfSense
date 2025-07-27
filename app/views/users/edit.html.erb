@@ -1,0 +1,8 @@
+<div class="container bg-light p-3">
+  <%= simple_form_for @user do |f|%>
+    <%= f.input :first_name%>
+    <%= f.input :last_name%>
+    <%= f.input :address%>
+    <%= f.button :submit, class:"btn-primary"%>
+  <% end %>
+</div>
