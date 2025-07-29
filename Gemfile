@@ -4,9 +4,6 @@ ruby "3.3.5"
 
 gem "devise"
 
-#added gem to encrypt sensitive info (address field) edit nvm not using it no more
-gem "lockbox"
-
 gem "pg_search"
 gem "flatpickr"
 gem "rollbar"
