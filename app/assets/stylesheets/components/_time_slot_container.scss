@@ -52,6 +52,15 @@
   font-weight: 500;
   border-radius: 8px;
 }
+.time-slot-grid:hover .time {
+  background: #dbcc78;
+  cursor: pointer;
+}
+.time-slot-grid:hover .cell-group {
+  background-color: #bde4e6;
+  cursor: pointer;
+}
+
 #select-info {
   padding: 10px;
   font-family: Arial, Helvetica, sans-serif;
