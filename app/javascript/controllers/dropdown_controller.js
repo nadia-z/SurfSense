@@ -131,7 +131,7 @@ export default class extends Controller {
 
       if (matchIndex !== -1) {
         const clone = template.content.cloneNode(true)
-        const timeStr = forecastTimes[matchIndex].toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        const timeStr = forecastTimes[matchIndex].toLocaleTimeString([], { hour: 'numeric', hour12: true });
 
         // Fill in forecast values
         clone.querySelector('[data-weather="time"]').textContent = timeStr;

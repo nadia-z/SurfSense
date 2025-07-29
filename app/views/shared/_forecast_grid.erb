@@ -13,7 +13,7 @@
 
   <!-- Template used to create time slot elements -->
   <template id="time-slot-template">
-    <div class="time-slot-grid mb-2">
+    <div class="time-slot-grid mb-2" data-time-slots-target="timeSlot" data-action="click->time-slots#selectTimeSlot">
       <div class="time fw-bold" data-weather="time"></div>
       <div class="cell-group">
         <span><span data-weather="swell-height">n.a.</span>m</span>
