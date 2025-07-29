@@ -34,6 +34,17 @@ export default class extends Controller {
     cardsContainer.insertBefore(event.currentTarget.parentElement, null)
 
     this.toggleLongForecastInfo(event)
+    this.deactivateClickFunctionalities(event)
+  }
+
+  deactivateClickFunctionalities() {
+    //I want to deactivate the card click functionalities in order to click on other buttons in the card
+    // without triggering the 'focusOnCard' function
+    // Find ALL elements with this action and remove the data-action attribute
+    const elementToDeactivate = document.querySelector('#card-template')
+    elementToDeactivate.removeAttribute('data-action')
+
+    console.log('DONE - Deactivated')
   }
 
   switchToFlowChart(event) {
