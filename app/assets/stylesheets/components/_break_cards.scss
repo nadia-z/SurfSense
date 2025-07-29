@@ -9,7 +9,8 @@
 }
 
 .break-card {
-  border: 1px solid #e0e0e0;
+  background-color: #f1fefe;
+  border: 1px solid #f1fefe;
   border-radius: 8px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   min-width: 450px;
@@ -33,7 +34,6 @@
   }
 
   .weather-info {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 1rem;
     border-radius: 6px;
     margin-top: 1rem;

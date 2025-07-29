@@ -68,4 +68,5 @@ export function addPaddingRect(node, padding = 20) {
   rect.setAttribute("pointer-events", "all");
 
   node.insertBefore(rect, node.firstChild);
+  console.log("addPaddingRect")
 }

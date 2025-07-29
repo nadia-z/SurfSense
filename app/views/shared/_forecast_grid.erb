@@ -1,119 +1,42 @@
 <div id="forecast-container" class="forecast-grid">
-  <!-- Empty top-left corner -->
-  <div></div>
-  <%# <button id="show-flowchart-button">Show Flowchart (placeholder for time slot selection)</button> %>
-
-
   <!-- Time labels -->
-  <button class="time-label flowchart-btn"
-        data-action="click->forecast#switchToFlowChart"
-        data-time="6am">6 am</button>
-  <button class="time-label flowchart-btn"
-        data-action="click->forecast#switchToFlowChart"
-        data-time="6am">9 am</button>
-  <button class="time-label flowchart-btn"
-        data-action="click->forecast#switchToFlowChart"
-        data-time="6am">12 am</button>
-  <button class="time-label flowchart-btn"
-        data-action="click->forecast#switchToFlowChart"
-        data-time="6am">3 pm</button>
-  <button class="time-label flowchart-btn"
-        data-action="click->forecast#switchToFlowChart"
-        data-time="6am">6 pm</button>
-  <button class="time-label flowchart-btn"
-        data-action="click->forecast#switchToFlowChart"
-        data-time="6am">9 pm</button>
-
-  <!-- Swell Height Row -->
-  <div class="label">Swell</div>
-
-  <div class="cell-group">
-    <span data-weather="swell-height">1.5 m</span>
-    <span>–</span>
-    <span data-weather="swell-period">14 s</span>
-    <span>–</span>
-    <span data-weather="swell-direction">NW</span>
-  </div>
-  <div class="cell-group">
-    <span data-weather="swell-height-9am">1.4 m</span>
-    <span>–</span>
-    <span data-weather="swell-period-9am">12 s</span>
-    <span>–</span>
-    <span data-weather="swell-direction-9am">NNE</span>
-  </div>
-  <div class="cell-group">
-    <span data-weather="swell-height-12pm">-- m</span>
-    <span>–</span>
-    <span data-weather="swell-period-12pm">-- s</span>
-    <span>–</span>
-    <span data-weather="swell-direction-12pm">--</span>
-  </div>
-  <div class="cell-group">
-    <span data-weather="swell-height-3pm">-- m</span>
-    <span>–</span>
-    <span data-weather="swell-period-3pm">-- s</span>
-    <span>–</span>
-    <span data-weather="swell-direction-3pm">--</span>
-  </div>
-    <div class="cell-group">
-    <span data-weather="swell-height-3pm">-- m</span>
-    <span>–</span>
-    <span data-weather="swell-period-3pm">-- s</span>
-    <span>–</span>
-    <span data-weather="swell-direction-3pm">--</span>
-  </div>
-  <div class="cell-group">
-    <span data-weather="swell-height-3pm">-- m</span>
-    <span>–</span>
-    <span data-weather="swell-period-3pm">-- s</span>
-    <span>–</span>
-    <span data-weather="swell-direction-3pm">--</span>
+  <div class="time-slot-grid mb-2 forecast-labels">
+    <p class="forecast-label pt-2">time</p>
+    <p class="forecast-label pt-2">swell</p>
+    <p class="forecast-label pt-2">wave</p>
+    <p class="forecast-label pt-2">wind</p>
+    <p class="forecast-label pt-2">tides</p>
   </div>
 
-  <!-- Wave Height Row -->
-  <div class="label">Wave</div>
+  <!-- Container where time slots will be injected by JS -->
+  <div class="time-slots-container"></div>
 
-  <div class="cell-group">
-    <span data-weather="wave-height-6am">1.7 m</span>
-    <span>–</span>
-    <span data-weather="wave-period-6am">13 s</span>
-    <span>–</span>
-    <span data-weather="wave-direction-6am">N</span>
-  </div>
-  <div class="cell-group">
-    <span data-weather="wave-height-9am">-- m</span>
-    <span>–</span>
-    <span data-weather="wave-period-9am">-- s</span>
-    <span>–</span>
-    <span data-weather="wave-direction-9am">--</span>
-  </div>
-  <div class="cell-group">
-    <span data-weather="wave-height-12pm">-- m</span>
-    <span>–</span>
-    <span data-weather="wave-period-12pm">-- s</span>
-    <span>–</span>
-    <span data-weather="wave-direction-12pm">--</span>
-  </div>
-  <div class="cell-group">
-    <span data-weather="wave-height-3pm">-- m</span>
-    <span>–</span>
-    <span data-weather="wave-period-3pm">-- s</span>
-    <span>–</span>
-    <span data-weather="wave-direction-3pm">--</span>
-  </div>
-    <div class="cell-group">
-    <span data-weather="wave-height-3pm">-- m</span>
-    <span>–</span>
-    <span data-weather="wave-period-3pm">-- s</span>
-    <span>–</span>
-    <span data-weather="wave-direction-3pm">--</span>
-  </div>
-    <div class="cell-group">
-    <span data-weather="wave-height-3pm">-- m</span>
-    <span>–</span>
-    <span data-weather="wave-period-3pm">-- s</span>
-    <span>–</span>
-    <span data-weather="wave-direction-3pm">--</span>
-  </div>
-
+  <!-- Template used to create time slot elements -->
+  <template id="time-slot-template">
+    <div class="time-slot-grid mb-2" data-time-slots-target="timeSlot" data-action="click->time-slots#selectTimeSlot">
+      <div class="time fw-bold" data-weather="time"></div>
+      <div class="cell-group">
+        <span><span data-weather="swell-height">n.a.</span>m</span>
+        <span>–</span>
+        <span><span data-weather="swell-period">n.a.</span>m</span>
+        <span>–</span>
+        <span data-weather="swell-direction">n.a.</span>
+      </div>
+      <div class="cell-group">
+        <span><span data-weather="wave-height">n.a.</span>m</span>
+        <span>–</span>
+        <span><span data-weather="wave-period">n.a.</span>m</span>
+        <span>–</span>
+        <span><span data-weather="wave-direction">n.a.</span>
+      </div>
+      <div class="cell-group">
+        <span><span data-weather="wind-speed">n.a.</span>km/h</span>
+        <span>–</span>
+        <span><span data-weather="wind-direction">n.a.</span></span>
+      </div>
+      <div class="cell-group">
+        <span><span data-weather="tide">n.a.</span></span>
+      </div>
+    </div>
+  </template>
 </div>

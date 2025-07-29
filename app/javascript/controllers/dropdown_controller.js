@@ -110,6 +110,41 @@ export default class extends Controller {
     weatherContainer.querySelector('[data-weather="max-swell"]').textContent = formatValue(todayMaxSwell)
     weatherContainer.querySelector('[data-weather="timestamp"]').textContent = now.toLocaleTimeString()
     weatherContainer.querySelector('[data-weather="timezone"]').textContent = weatherData.location.timezone
+
+    // hourly forecast
+    const forecastTimes = weatherData.hourly.time.map(t => new Date(t))
+    const hoursToShow = [6, 9, 12, 15, 18, 21]
+    const template = document.getElementById('time-slot-template')
+    const timeSlotsContainer = document.querySelector('.time-slots-container')
+    timeSlotsContainer.innerHTML = ""
+
+    hoursToShow.forEach(hour => {
+      const today = new Date()
+      const matchIndex = forecastTimes.findIndex(date =>
+        date.getHours() === hour &&
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+      )
+
+      console.log(`Looking for hour ${hour}: found at index ${matchIndex}, date:`, forecastTimes[matchIndex])
+
+      if (matchIndex !== -1) {
+        const clone = template.content.cloneNode(true)
+        const timeStr = forecastTimes[matchIndex].toLocaleTimeString([], { hour: 'numeric', hour12: true });
+
+        // Fill in forecast values
+        clone.querySelector('[data-weather="time"]').textContent = timeStr;
+        clone.querySelector('[data-weather="swell-height"]').textContent = weatherData.hourly.swellWaveHeight[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="swell-period"]').textContent = weatherData.hourly.swellWavePeriod[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="swell-direction"]').textContent = getCompassDirection(weatherData.hourly.swellWaveDirection[matchIndex]);
+        clone.querySelector('[data-weather="wave-height"]').textContent = weatherData.hourly.waveHeight[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="wave-period"]').textContent = weatherData.hourly.wavePeriod[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="wave-direction"]').textContent = getCompassDirection(weatherData.hourly.waveDirection[matchIndex]);
+
+        timeSlotsContainer.appendChild(clone)
+      }
+    })
   }
 
   createBreakCard(breakName, region, country, breakData) {

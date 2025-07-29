@@ -11,3 +11,4 @@ pin "flatpickr" # @4.6.13
 pin "openmeteo" # @1.2.0
 pin "@openmeteo/sdk/weather-api-response", to: "@openmeteo--sdk--weather-api-response.js" # @1.20.1
 pin "flatbuffers" # @25.2.10
+pin "d3", to: "https://cdn.skypack.dev/d3?dts"
