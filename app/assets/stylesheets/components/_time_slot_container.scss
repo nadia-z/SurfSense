@@ -1,19 +1,25 @@
 .time-slots-container {
   display: flex;
+  grid-template-columns: 1fr repeat(6, 1fr);
   flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 100vw;
-  margin: 3rem;
-  padding-top: 4rem;
-  gap: 5px;
+  justify-content: start;
+  gap: 10px;
 
   .card-time-slot {
     border: 1px solid black;
     max-height: 20vh;
     margin-bottom: 0;
   }
-
+}
+.time-slot-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  min-width: 80px;
+  flex: 1 1 80px;
+  margin: 0;
 }
 
 .page-container-forecasts {
@@ -37,4 +43,41 @@
   margin-bottom: 3rem;
   background-color: aquamarine;
   height: 50%;
+}
+
+.time {
+  background: #FFFCAE;
+  padding: 10px;
+  text-align: center;
+  font-weight: 500;
+  border-radius: 8px;
+}
+#select-info {
+  padding: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+  font-size: 1rem;
+
+}
+.cell-group {
+  background: #E5F9FA;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  width: 100%;
+}
+.forecast-labels {
+  padding: 10px;
+  margin-bottom: 6px;
+
+}
+.forecast-label {
+  font-size: 1rem !important;
+  color: black !important;
 }
