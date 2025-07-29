@@ -7,6 +7,9 @@ gem "devise"
 #added gem to encrypt sensitive info (address field) edit nvm not using it no more
 gem "lockbox"
 
+# added cloudenary gem
+gem "cloudinary"
+
 gem "pg_search"
 gem "flatpickr"
 gem "rollbar"

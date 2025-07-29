@@ -6,4 +6,5 @@ class User < ApplicationRecord
   has_many :locations
   has_many :selected_forecasts
 
+  has_one_attached :photo
 end

@@ -17,6 +17,6 @@ class UsersController < ApplicationController
 
   def user_params
     #TODO find way to encrypt address data
-    params.require(:user).permit(:first_name, :last_name, :address)
+    params.require(:user).permit(:first_name, :last_name, :address, :photo)
   end
 end
