@@ -1,0 +1,34 @@
+/* Heart-shaped save button - remove all default styling */
+.heart-save {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font: inherit !important;
+  cursor: pointer !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  /* Remove any Bootstrap or default button styles */
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+
+  /* Heart icon styling */
+  i.fa-heart {
+    font-size: 2rem;
+    color: #dc3545; /* Bootstrap danger color for red heart */
+    transition: all 0.2s ease;
+  }
+
+  /* Hover effect */
+  &:hover i.fa-heart {
+    color: #c82333; /* Darker red on hover */
+    transform: scale(1.1);
+  }
+
+  /* Active/clicked effect */
+  &:active i.fa-heart {
+    transform: scale(0.95);
+  }
+}

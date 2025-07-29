@@ -17,11 +17,22 @@
 <div style="margin-top: 1rem;">
   <%= render 'shared/forecast_grid' %>
 </div>
-<div class="row mt-2">
-  <div class="col-12" style="display: flex; justify-content: space-between;">
-    <small class="text-muted">
-      <i class="fas fa-clock"></i> Updated: <span data-weather="timestamp">--</span> (<span data-weather="timezone">--</span>)
-    </small>
-    <button id="btn-back" class="btn btn-primary"><a class="dropdown-item" href="#" data-value="" data-action="click-&gt;dropdown#selectItem"> Back to 'All Regions'</a></button>
+<div class="mt-2" style="display: flex; justify-content: space-between; align-items: center;">
+  <small class="text-muted col-6" style="align-self: center;">
+    <i class="fas fa-clock"></i> Updated: <span data-weather="timestamp">--</span> (<span data-weather="timezone">--</span>)
+  </small>
+  <div class="button-container" data-controller="save-location">
+    <!-- Hidden form data for AJAX submission -->
+    <input type="hidden" id="location_latitude" />
+    <input type="hidden" id="location_longitude" />
+    <input type="hidden" id="location_break" />
+    <input type="hidden" id="location_region" />
+    <input type="hidden" id="location_country" />
+
+    <div class="heart-save"
+         data-save-location-target="button"
+         data-action="click->save-location#saveLocation">
+      <i class="far fa-heart"></i>
+    </div>
   </div>
 </div>
