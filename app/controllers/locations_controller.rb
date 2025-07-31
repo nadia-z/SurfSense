@@ -13,6 +13,10 @@ class LocationsController < ApplicationController
       if @location.save
         format.html { redirect_to root_path, notice: 'Location saved successfully!' }
         format.json { render json: { status: 'success', message: 'Location saved successfully!' } }
+      elsif current_user.nill
+        format.html { redirect_to root_path, alert: 'Log-in to save locations' }
+        format.json { render json: { status: 'error', message: 'Log-in to save locations', errors: @location.errors } }
+
       else
         format.html { redirect_to root_path, alert: 'Failed to save location.' }
         format.json { render json: { status: 'error', message: 'Failed to save location.', errors: @location.errors } }

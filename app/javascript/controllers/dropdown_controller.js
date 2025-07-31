@@ -127,7 +127,7 @@ export default class extends Controller {
         date.getFullYear() === today.getFullYear()
       )
 
-      console.log(`Looking for hour ${hour}: found at index ${matchIndex}, date:`, forecastTimes[matchIndex])
+      //console.log(`Looking for hour ${hour}: found at index ${matchIndex}, date:`, forecastTimes[matchIndex])
 
       if (matchIndex !== -1) {
         const clone = template.content.cloneNode(true)
@@ -146,6 +146,18 @@ export default class extends Controller {
       }
     })
   }
+
+  displayWeatherError(breakName) {
+    const weatherContainer = document.getElementById(`weather-${breakName.replace(/\s+/g, '-')}`)
+    if (!weatherContainer) return
+
+    weatherContainer.innerHTML = `
+      <div class="alert alert-warning py-2" role="alert">
+        <small>Unable to load weather data</small>
+      </div>
+    `
+  }
+
 
   createBreakCard(breakName, region, country, breakData) {
     const card = document.createElement('div')
@@ -173,39 +185,36 @@ export default class extends Controller {
     return card
   }
 
-  displayWeatherError(breakName) {
-    const weatherContainer = document.getElementById(`weather-${breakName.replace(/\s+/g, '-')}`)
-    if (!weatherContainer) return
 
-    weatherContainer.innerHTML = `
-      <div class="alert alert-warning py-2" role="alert">
-        <small>Unable to load weather data</small>
-      </div>
-    `
-  }
 
-  selectItem(event) {
-    event.preventDefault()
-    const selectedText = event.target.textContent.trim()
-    this.buttonTarget.textContent = selectedText
+  populateBreaksForCountry(selectedCountry) {
+    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
+    if (!breakDropdown) return
 
-    // Check if locations data is available
-    if (!this.locationsData || !this.locationsData.countries) {
-      console.error("Locations data not available:", this.locationsData)
-      return
-    }
+    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
 
-    // Handle cascading based on dropdown type
-    if (this.dropdownType === "country") {
-      this.populateRegions(selectedText)
-      this.clearBreaks()
-    } else if (this.dropdownType === "region") {
-      const selectedCountry = this.getSelectedCountry()
-      this.populateBreaks(selectedCountry, selectedText)
-    } else if (this.dropdownType === "break") {
-      const selectedCountry = this.getSelectedCountry()
-      const selectedRegion = this.getSelectedRegion()
-      this.displaySingleBreakCard(selectedCountry, selectedRegion, selectedText)
+    // Get all breaks for all regions in the country
+    const allBreaks = []
+    const countryData = this.locationsData.countries[selectedCountry] || {}
+
+    Object.entries(countryData).forEach(([region, regionData]) => {
+      Object.entries(regionData).forEach(([breakName, breakData]) => {
+        allBreaks.push({ name: breakName, region: region, data: breakData })
+      })
+    })
+
+    if (allBreaks.length > 0) {
+      breakMenu.innerHTML = allBreaks.map(breakItem =>
+        `<li><a class="dropdown-item"
+                href="#"
+                data-value="${breakItem.name}"
+                data-action="click->dropdown#selectItem">${breakItem.name}</a></li>`
+      ).join('')
+
+      // Display all breaks as cards
+      this.displayAllBreakCards(selectedCountry, allBreaks)
+    } else {
+      breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">No breaks available</span></li>'
     }
   }
 
@@ -280,6 +289,57 @@ export default class extends Controller {
     }
   }
 
+
+
+
+  clearBreaks() {
+    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
+    if (!breakDropdown) return
+
+    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
+    const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
+
+    breakButton.textContent = "Break"
+    breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">Select a region first</span></li>'
+
+    // Clear cards when changing country
+    this.clearBreakCards()
+  }
+
+  clearBreakCards() {
+    const cardsContainer = document.getElementById('break-cards-container')
+    if (cardsContainer) {
+      cardsContainer.innerHTML = ''
+    }
+  }
+
+
+
+  getSelectedCountry() {
+    const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
+    if (!countryDropdown) return null
+
+    const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
+    return countryButton ? countryButton.textContent.trim() : null
+  }
+
+  getSelectedRegion() {
+    const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
+    if (!regionDropdown) return null
+
+    const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
+    const regionText = regionButton ? regionButton.textContent.trim() : null
+
+    // Handle "All Regions" case
+    if (regionText === "All Regions" || regionText === "Region") {
+      return null
+    }
+
+    return regionText
+  }
+
+
+
   displayBreakCards(selectedCountry, selectedRegion, breaks) {
     // Get or create cards container
     let cardsContainer = document.getElementById('break-cards-container')
@@ -304,132 +364,6 @@ export default class extends Controller {
       const card = this.createBreakCard(breakName, selectedRegion, selectedCountry, breakData)
       cardsContainer.appendChild(card)
     })
-  }
-
-  createBreakCard(breakName, region, country, breakData) {
-    const card = document.createElement('div')
-    card.className = 'break-card card mb-3'
-    card.dataset.lat = breakData.latitude
-    card.dataset.lng = breakData.longitude
-
-    // Use the template instead of inline HTML
-    card.innerHTML = this.cardTemplate
-
-    // Populate the card data using data attributes
-    card.querySelector('[data-card="break-name"]').textContent = breakName
-    card.querySelector('[data-card="region"]').textContent = region
-    card.querySelector('[data-card="country"]').textContent = country
-    card.querySelector('[data-card="latitude"]').textContent = breakData.latitude
-    card.querySelector('[data-card="longitude"]').textContent = breakData.longitude
-
-    // Set the weather container ID
-    const weatherContainer = card.querySelector('[data-card="weather-container"]')
-    weatherContainer.id = `weather-${breakName.replace(/\s+/g, '-')}`
-
-    // Fetch weather data for this break
-    this.fetchWeatherData(breakData.latitude, breakData.longitude, breakName)
-
-    return card
-  }
-
-  populateBreaksForCountry(selectedCountry) {
-    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
-    if (!breakDropdown) return
-
-    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
-
-    // Get all breaks for all regions in the country
-    const allBreaks = []
-    const countryData = this.locationsData.countries[selectedCountry] || {}
-
-    Object.entries(countryData).forEach(([region, regionData]) => {
-      Object.entries(regionData).forEach(([breakName, breakData]) => {
-        allBreaks.push({ name: breakName, region: region, data: breakData })
-      })
-    })
-
-    if (allBreaks.length > 0) {
-      breakMenu.innerHTML = allBreaks.map(breakItem =>
-        `<li><a class="dropdown-item"
-                href="#"
-                data-value="${breakItem.name}"
-                data-action="click->dropdown#selectItem">${breakItem.name}</a></li>`
-      ).join('')
-
-      // Display all breaks as cards
-      this.displayAllBreakCards(selectedCountry, allBreaks)
-    } else {
-      breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">No breaks available</span></li>'
-    }
-  }
-
-  displayAllBreakCards(selectedCountry, allBreaks) {
-    // Get or create cards container
-    let cardsContainer = document.getElementById('break-cards-container')
-    if (!cardsContainer) {
-      cardsContainer = document.createElement('div')
-      cardsContainer.id = 'break-cards-container'
-      cardsContainer.className = 'break-cards'
-
-      // Insert after search wrapper
-      const searchWrapper = document.querySelector('.search-wrapper')
-      if (searchWrapper) {
-        searchWrapper.insertAdjacentElement('afterend', cardsContainer)
-      }
-    }
-
-    // Clear existing cards
-    cardsContainer.innerHTML = ''
-
-    // Create cards for each break
-    allBreaks.forEach(breakItem => {
-      const card = this.createBreakCard(breakItem.name, breakItem.region, selectedCountry, breakItem.data)
-      cardsContainer.appendChild(card)
-    })
-  }
-
-  clearBreaks() {
-    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
-    if (!breakDropdown) return
-
-    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
-    const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
-
-    breakButton.textContent = "Break"
-    breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">Select a region first</span></li>'
-
-    // Clear cards when changing country
-    this.clearBreakCards()
-  }
-
-  clearBreakCards() {
-    const cardsContainer = document.getElementById('break-cards-container')
-    if (cardsContainer) {
-      cardsContainer.innerHTML = ''
-    }
-  }
-
-  getSelectedCountry() {
-    const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
-    if (!countryDropdown) return null
-
-    const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
-    return countryButton ? countryButton.textContent.trim() : null
-  }
-
-  getSelectedRegion() {
-    const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
-    if (!regionDropdown) return null
-
-    const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
-    const regionText = regionButton ? regionButton.textContent.trim() : null
-
-    // Handle "All Regions" case
-    if (regionText === "All Regions" || regionText === "Region") {
-      return null
-    }
-
-    return regionText
   }
 
   displaySingleBreakCard(selectedCountry, selectedRegion, selectedBreak) {
@@ -474,6 +408,58 @@ export default class extends Controller {
       cardsContainer.appendChild(card)
     } else {
       console.error(`Break "${selectedBreak}" not found in ${selectedCountry}`)
+    }
+  }
+
+  displayAllBreakCards(selectedCountry, allBreaks) {
+    // Get or create cards container
+    let cardsContainer = document.getElementById('break-cards-container')
+    if (!cardsContainer) {
+      cardsContainer = document.createElement('div')
+      cardsContainer.id = 'break-cards-container'
+      cardsContainer.className = 'break-cards'
+
+      // Insert after search wrapper
+      const searchWrapper = document.querySelector('.search-wrapper')
+      if (searchWrapper) {
+        searchWrapper.insertAdjacentElement('afterend', cardsContainer)
+      }
+    }
+
+    // Clear existing cards
+    cardsContainer.innerHTML = ''
+
+    // Create cards for each break
+    allBreaks.forEach(breakItem => {
+      const card = this.createBreakCard(breakItem.name, breakItem.region, selectedCountry, breakItem.data)
+      cardsContainer.appendChild(card)
+    })
+  }
+
+
+
+  selectItem(event) {
+    event.preventDefault()
+    const selectedText = event.target.textContent.trim()
+    this.buttonTarget.textContent = selectedText
+
+    // Check if locations data is available
+    if (!this.locationsData || !this.locationsData.countries) {
+      console.error("Locations data not available:", this.locationsData)
+      return
+    }
+
+    // Handle cascading based on dropdown type
+    if (this.dropdownType === "country") {
+      this.populateRegions(selectedText)
+      this.clearBreaks()
+    } else if (this.dropdownType === "region") {
+      const selectedCountry = this.getSelectedCountry()
+      this.populateBreaks(selectedCountry, selectedText)
+    } else if (this.dropdownType === "break") {
+      const selectedCountry = this.getSelectedCountry()
+      const selectedRegion = this.getSelectedRegion()
+      this.displaySingleBreakCard(selectedCountry, selectedRegion, selectedText)
     }
   }
 }
