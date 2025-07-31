@@ -1,0 +1,12 @@
+<div class="container bg-light rounded p-3" >
+  <%= link_to "go back", user_path(@user), class:"btn btn-link mb-3"%>
+  <%= simple_form_for @user do |f|%>
+    <%= f.input :first_name%>
+    <%= f.input :last_name%>
+    <%= f.input :photo, as: :file, label: "profile pic"%>
+
+    <%= f.button :submit, class:"btn btn-primary"%>
+  <% end %>
+
+
+</div>
