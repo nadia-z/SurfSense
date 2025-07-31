@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { createDefs, applyBlur, removeBlur, addPaddingRect } from "../flowchart_effects"
 import { initializeNodeClickListeners } from "../flowchart_interactions"
+import { findAnswerToSwellHeight, updateSwellAnswer } from "../swell_height_answers";
 
 // Connects to data-controller="forecast"
 export default class extends Controller {
@@ -49,20 +50,32 @@ export default class extends Controller {
 
   switchToFlowChart(event) {
     event.preventDefault()
-    console.log("time clicked")
 
     // Find the parent .break-card element
     const breakCard = this.element.closest('.break-card');
-
+    // remove the parent element so that only the flowchart remains visible
     if (breakCard) {
-      breakCard.remove();  // remove the parent element
+      breakCard.remove();
     }
-
-
-    const timeLabel = event.currentTarget.innerText.trim()
     const forecastContainer = document.getElementById("forecast-container")
     const flowchartContainer = document.getElementById("flowchart-container")
     const svgContainer = document.getElementById("svg-container")
+
+    // Reset flowchart visuals
+    svgContainer.innerHTML = ""
+    flowchartContainer.dataset.loaded = "false"
+
+    // Read updated forecast values
+    const swellHeightEl = document.querySelector('[data-weather="swell-height"]')
+    const swellHeight = parseFloat(swellHeightEl?.dataset.swellHeight || "0")
+
+    // Dispatch updated data
+    document.dispatchEvent(new CustomEvent("swell:updated", {
+      detail: { swellHeight }
+    }))
+
+    const timeLabel = event.currentTarget.innerText.trim()
+
 
     forecastContainer.style.display = "none"
     flowchartContainer.style.display = "block"
@@ -79,11 +92,11 @@ export default class extends Controller {
         createDefs(svg)
         const edges = svg.querySelectorAll('[id^="e-"]')
         const nodes = svg.querySelectorAll('[id^="sn-"], [id^="qsn-"]')
-        const swellHeight = svg.getElementById('swell-height-value')
+        const swellTextEl = svg.getElementById('swell-height-value')
 
         this.hideAllElements(edges, nodes)
-        this.showNodesAndEdges(nodes, svg, [0, 1, 2, 14])
-        this.blurNodes(nodes, [3, 4, 15])
+        this.showNodesAndEdges(nodes, svg, [0, 1, 2, 3])
+        this.blurNodes(nodes, [4, 8])
         initializeNodeClickListeners(nodes, edges, svg, { applyBlur, removeBlur })
         this.updateSwellHeightText(swellHeight)
       })
