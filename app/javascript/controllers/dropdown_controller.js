@@ -18,28 +18,42 @@ export default class extends Controller {
 
   async fetchWeatherData(lat, lng, breakName) {
     try {
-      const params = {
+      const params1 = {
         "latitude": lat,
         "longitude": lng,
         "hourly": ["wave_height", "swell_wave_height", "swell_wave_direction", "swell_wave_period", "wave_direction", "wave_period"],
         "timezone": "auto",
         "forecast_days": 3
       }
-      const url = "https://marine-api.open-meteo.com/v1/marine"
-      const responses = await fetchWeatherApi(url, params)
 
-      // Process first location
-      const response = responses[0]
+      const params2 = {
+        "latitude": lat,
+        "longitude": lng,
+        "hourly": ["temperature_2m", "wind_speed_10m", "wind_direction_10m"],
+        "timezone": "auto"
+      }
 
-      // Attributes for timezone and location
-      const utcOffsetSeconds = response.utcOffsetSeconds()
-      const timezone = response.timezone()
-      const latitude = response.latitude()
-      const longitude = response.longitude()
+      const urlMarine = "https://marine-api.open-meteo.com/v1/marine"
+      const urlWeather = "https://api.open-meteo.com/v1/forecast"
 
-      const hourly = response.hourly()
+      const responses1 = await fetchWeatherApi(urlMarine, params1)
+      const responses2 = await fetchWeatherApi(urlWeather, params2)
 
-      // Create weather data structure
+      // Process first location for each model
+      const marineResponse = responses1[0]
+      const weatherResponse = responses2[0]
+
+      // Use marineResponse for marine data, weatherResponse for weather data
+      // Attributes for timezone and location (use marineResponse for consistency)
+      const utcOffsetSeconds = marineResponse.utcOffsetSeconds()
+      const timezone = marineResponse.timezone()
+      const latitude = marineResponse.latitude()
+      const longitude = marineResponse.longitude()
+
+      const marineHourly = marineResponse.hourly()
+      const weatherHourly = weatherResponse.hourly()
+
+      // Create weather data structure, merging both marine and weather hourly data
       const weatherData = {
         location: {
           latitude,
@@ -48,15 +62,19 @@ export default class extends Controller {
           utcOffsetSeconds
         },
         hourly: {
-          time: [...Array((Number(hourly.timeEnd()) - Number(hourly.time())) / hourly.interval())].map(
-            (_, i) => new Date((Number(hourly.time()) + i * hourly.interval() + utcOffsetSeconds) * 1000)
+          time: [...Array((Number(marineHourly.timeEnd()) - Number(marineHourly.time())) / marineHourly.interval())].map(
+            (_, i) => new Date((Number(marineHourly.time()) + i * marineHourly.interval() + utcOffsetSeconds) * 1000)
           ),
-          waveHeight: hourly.variables(0).valuesArray(),
-          swellWaveHeight: hourly.variables(1).valuesArray(),
-          swellWaveDirection: hourly.variables(2).valuesArray(),
-          swellWavePeriod: hourly.variables(3).valuesArray(),
-          waveDirection: hourly.variables(4).valuesArray(),
-          wavePeriod: hourly.variables(5).valuesArray(),
+          waveHeight: marineHourly.variables(0).valuesArray(),
+          swellWaveHeight: marineHourly.variables(1).valuesArray(),
+          swellWaveDirection: marineHourly.variables(2).valuesArray(),
+          swellWavePeriod: marineHourly.variables(3).valuesArray(),
+          waveDirection: marineHourly.variables(4).valuesArray(),
+          wavePeriod: marineHourly.variables(5).valuesArray(),
+          // Add weather model data
+          temperature_2m: weatherHourly.variables(0).valuesArray(),
+          wind_speed_10m: weatherHourly.variables(1).valuesArray(),
+          wind_direction_10m: weatherHourly.variables(2).valuesArray(),
         },
       }
 
@@ -81,6 +99,10 @@ export default class extends Controller {
     const currentSwellDirection = weatherData.hourly.swellWaveDirection[currentHour]
     const currentSwellPeriod = weatherData.hourly.swellWavePeriod[currentHour]
 
+    const currentTemperature = weatherData.hourly.temperature_2m[currentHour]
+    const currentWindSpeed = weatherData.hourly.wind_speed_10m[currentHour]
+    const currentWindDirection = weatherData.hourly.wind_direction_10m[currentHour]
+
     // Get today's max wave height
     const todayMaxWave = Math.max(...weatherData.hourly.waveHeight.slice(0, 24))
     const todayMaxSwell = Math.max(...weatherData.hourly.swellWaveHeight.slice(0, 24))
@@ -99,17 +121,25 @@ export default class extends Controller {
     // Use the template instead of inline HTML
     weatherContainer.innerHTML = this.weatherTemplate
 
-    // Populate the data using data attributes
-    weatherContainer.querySelector('[data-weather="wave-height"]').textContent = formatValue(currentWaveHeight)
-    weatherContainer.querySelector('[data-weather="wave-direction"]').textContent = `${getCompassDirection(currentWaveDirection)} (${formatValue(currentWaveDirection)}°)`
-    weatherContainer.querySelector('[data-weather="wave-period"]').textContent = formatValue(currentWavePeriod)
-    weatherContainer.querySelector('[data-weather="max-wave"]').textContent = formatValue(todayMaxWave)
-    weatherContainer.querySelector('[data-weather="swell-height"]').textContent = formatValue(currentSwellHeight)
-    weatherContainer.querySelector('[data-weather="swell-direction"]').textContent = `${getCompassDirection(currentSwellDirection)} (${formatValue(currentSwellDirection)}°)`
-    weatherContainer.querySelector('[data-weather="swell-period"]').textContent = formatValue(currentSwellPeriod)
-    weatherContainer.querySelector('[data-weather="max-swell"]').textContent = formatValue(todayMaxSwell)
-    weatherContainer.querySelector('[data-weather="timestamp"]').textContent = now.toLocaleTimeString()
-    weatherContainer.querySelector('[data-weather="timezone"]').textContent = weatherData.location.timezone
+    // Populate the data using data attributes, with null checks
+    const setText = (selector, value) => {
+      const el = weatherContainer.querySelector(selector);
+      if (el) el.textContent = value;
+    };
+
+    setText('[data-weather="wave-height"]', formatValue(currentWaveHeight));
+    setText('[data-weather="wave-direction"]', `${getCompassDirection(currentWaveDirection)} (${formatValue(currentWaveDirection)}°)`);
+    setText('[data-weather="wave-period"]', formatValue(currentWavePeriod));
+    setText('[data-weather="max-wave"]', formatValue(todayMaxWave));
+    setText('[data-weather="swell-height"]', formatValue(currentSwellHeight));
+    setText('[data-weather="swell-direction"]', `${getCompassDirection(currentSwellDirection)} (${formatValue(currentSwellDirection)}°)`);
+    setText('[data-weather="swell-period"]', formatValue(currentSwellPeriod));
+    setText('[data-weather="max-swell"]', formatValue(todayMaxSwell));
+    setText('[data-weather="timestamp"]', now.toLocaleTimeString());
+    setText('[data-weather="timezone"]', weatherData.location.timezone);
+    setText('[data-weather="temperature"]', formatValue(currentTemperature));
+    setText('[data-weather="wind-direction"]', `${getCompassDirection(currentWindDirection)} (${formatValue(currentWindDirection)}°)`);
+    setText('[data-weather="wind-speed"]', formatValue(currentWindSpeed));
 
     // hourly forecast
     const forecastTimes = weatherData.hourly.time.map(t => new Date(t))
@@ -141,6 +171,10 @@ export default class extends Controller {
         clone.querySelector('[data-weather="wave-height"]').textContent = weatherData.hourly.waveHeight[matchIndex].toFixed(1);
         clone.querySelector('[data-weather="wave-period"]').textContent = weatherData.hourly.wavePeriod[matchIndex].toFixed(1);
         clone.querySelector('[data-weather="wave-direction"]').textContent = getCompassDirection(weatherData.hourly.waveDirection[matchIndex]);
+
+        clone.querySelector('[data-weather="temperature"]').textContent = weatherData.hourly.temperature_2m[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="wind-speed"]').textContent = weatherData.hourly.wind_speed_10m[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="wind-direction"]').textContent =  getCompassDirection(weatherData.hourly.wind_direction_10m[matchIndex]);
 
         timeSlotsContainer.appendChild(clone)
       }
