@@ -8,8 +8,6 @@ export default class extends Controller {
   connect() {
     // Access locations data through Stimulus values
     this.locationsData = this.locationsValue
-    console.log('save_location controller connected')
-    console.log(this.locationsData)
   }
 
   saveLocation(event) {
@@ -95,6 +93,9 @@ export default class extends Controller {
     formData.append('location[region]', document.getElementById('location_region').value);
     formData.append('location[country]', document.getElementById('location_country').value);
 
+    // create boolean to see if user is logged in
+    const isLoggedIn = document.body.dataset.currentUser === "true"
+    console.log(isLoggedIn)
     console.log('Sending AJAX request to /locations');
 
     fetch('/locations', {
@@ -122,7 +123,11 @@ export default class extends Controller {
     })
     .catch((error) => {
       console.error('Error:', error);
-      alert('Failed to save location. Please try again.');
+      if(!isLoggedIn) {
+        alert('Need to log-in to save location. Please try again.');
+      } else {
+        alert('Failed to save location. Please try again.');
+      }
     });
   }
 

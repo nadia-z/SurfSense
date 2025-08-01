@@ -18,28 +18,42 @@ export default class extends Controller {
 
   async fetchWeatherData(lat, lng, breakName) {
     try {
-      const params = {
+      const params1 = {
         "latitude": lat,
         "longitude": lng,
         "hourly": ["wave_height", "swell_wave_height", "swell_wave_direction", "swell_wave_period", "wave_direction", "wave_period"],
         "timezone": "auto",
         "forecast_days": 3
       }
-      const url = "https://marine-api.open-meteo.com/v1/marine"
-      const responses = await fetchWeatherApi(url, params)
 
-      // Process first location
-      const response = responses[0]
+      const params2 = {
+        "latitude": lat,
+        "longitude": lng,
+        "hourly": ["temperature_2m", "wind_speed_10m", "wind_direction_10m"],
+        "timezone": "auto"
+      }
 
-      // Attributes for timezone and location
-      const utcOffsetSeconds = response.utcOffsetSeconds()
-      const timezone = response.timezone()
-      const latitude = response.latitude()
-      const longitude = response.longitude()
+      const urlMarine = "https://marine-api.open-meteo.com/v1/marine"
+      const urlWeather = "https://api.open-meteo.com/v1/forecast"
 
-      const hourly = response.hourly()
+      const responses1 = await fetchWeatherApi(urlMarine, params1)
+      const responses2 = await fetchWeatherApi(urlWeather, params2)
 
-      // Create weather data structure
+      // Process first location for each model
+      const marineResponse = responses1[0]
+      const weatherResponse = responses2[0]
+
+      // Use marineResponse for marine data, weatherResponse for weather data
+      // Attributes for timezone and location (use marineResponse for consistency)
+      const utcOffsetSeconds = marineResponse.utcOffsetSeconds()
+      const timezone = marineResponse.timezone()
+      const latitude = marineResponse.latitude()
+      const longitude = marineResponse.longitude()
+
+      const marineHourly = marineResponse.hourly()
+      const weatherHourly = weatherResponse.hourly()
+
+      // Create weather data structure, merging both marine and weather hourly data
       const weatherData = {
         location: {
           latitude,
@@ -48,15 +62,19 @@ export default class extends Controller {
           utcOffsetSeconds
         },
         hourly: {
-          time: [...Array((Number(hourly.timeEnd()) - Number(hourly.time())) / hourly.interval())].map(
-            (_, i) => new Date((Number(hourly.time()) + i * hourly.interval() + utcOffsetSeconds) * 1000)
+          time: [...Array((Number(marineHourly.timeEnd()) - Number(marineHourly.time())) / marineHourly.interval())].map(
+            (_, i) => new Date((Number(marineHourly.time()) + i * marineHourly.interval() + utcOffsetSeconds) * 1000)
           ),
-          waveHeight: hourly.variables(0).valuesArray(),
-          swellWaveHeight: hourly.variables(1).valuesArray(),
-          swellWaveDirection: hourly.variables(2).valuesArray(),
-          swellWavePeriod: hourly.variables(3).valuesArray(),
-          waveDirection: hourly.variables(4).valuesArray(),
-          wavePeriod: hourly.variables(5).valuesArray(),
+          waveHeight: marineHourly.variables(0).valuesArray(),
+          swellWaveHeight: marineHourly.variables(1).valuesArray(),
+          swellWaveDirection: marineHourly.variables(2).valuesArray(),
+          swellWavePeriod: marineHourly.variables(3).valuesArray(),
+          waveDirection: marineHourly.variables(4).valuesArray(),
+          wavePeriod: marineHourly.variables(5).valuesArray(),
+          // Add weather model data
+          temperature_2m: weatherHourly.variables(0).valuesArray(),
+          wind_speed_10m: weatherHourly.variables(1).valuesArray(),
+          wind_direction_10m: weatherHourly.variables(2).valuesArray(),
         },
       }
 
@@ -81,6 +99,10 @@ export default class extends Controller {
     const currentSwellDirection = weatherData.hourly.swellWaveDirection[currentHour]
     const currentSwellPeriod = weatherData.hourly.swellWavePeriod[currentHour]
 
+    const currentTemperature = weatherData.hourly.temperature_2m[currentHour]
+    const currentWindSpeed = weatherData.hourly.wind_speed_10m[currentHour]
+    const currentWindDirection = weatherData.hourly.wind_direction_10m[currentHour]
+
     // Get today's max wave height
     const todayMaxWave = Math.max(...weatherData.hourly.waveHeight.slice(0, 24))
     const todayMaxSwell = Math.max(...weatherData.hourly.swellWaveHeight.slice(0, 24))
@@ -99,17 +121,25 @@ export default class extends Controller {
     // Use the template instead of inline HTML
     weatherContainer.innerHTML = this.weatherTemplate
 
-    // Populate the data using data attributes
-    weatherContainer.querySelector('[data-weather="wave-height"]').textContent = formatValue(currentWaveHeight)
-    weatherContainer.querySelector('[data-weather="wave-direction"]').textContent = `${getCompassDirection(currentWaveDirection)} (${formatValue(currentWaveDirection)}°)`
-    weatherContainer.querySelector('[data-weather="wave-period"]').textContent = formatValue(currentWavePeriod)
-    weatherContainer.querySelector('[data-weather="max-wave"]').textContent = formatValue(todayMaxWave)
-    weatherContainer.querySelector('[data-weather="swell-height"]').textContent = formatValue(currentSwellHeight)
-    weatherContainer.querySelector('[data-weather="swell-direction"]').textContent = `${getCompassDirection(currentSwellDirection)} (${formatValue(currentSwellDirection)}°)`
-    weatherContainer.querySelector('[data-weather="swell-period"]').textContent = formatValue(currentSwellPeriod)
-    weatherContainer.querySelector('[data-weather="max-swell"]').textContent = formatValue(todayMaxSwell)
-    weatherContainer.querySelector('[data-weather="timestamp"]').textContent = now.toLocaleTimeString()
-    weatherContainer.querySelector('[data-weather="timezone"]').textContent = weatherData.location.timezone
+    // Populate the data using data attributes, with null checks
+    const setText = (selector, value) => {
+      const el = weatherContainer.querySelector(selector);
+      if (el) el.textContent = value;
+    };
+
+    setText('[data-weather="wave-height"]', formatValue(currentWaveHeight));
+    setText('[data-weather="wave-direction"]', `${getCompassDirection(currentWaveDirection)} (${formatValue(currentWaveDirection)}°)`);
+    setText('[data-weather="wave-period"]', formatValue(currentWavePeriod));
+    setText('[data-weather="max-wave"]', formatValue(todayMaxWave));
+    setText('[data-weather="swell-height"]', formatValue(currentSwellHeight));
+    setText('[data-weather="swell-direction"]', `${getCompassDirection(currentSwellDirection)} (${formatValue(currentSwellDirection)}°)`);
+    setText('[data-weather="swell-period"]', formatValue(currentSwellPeriod));
+    setText('[data-weather="max-swell"]', formatValue(todayMaxSwell));
+    setText('[data-weather="timestamp"]', now.toLocaleTimeString());
+    setText('[data-weather="timezone"]', weatherData.location.timezone);
+    setText('[data-weather="temperature"]', formatValue(currentTemperature));
+    setText('[data-weather="wind-direction"]', `${getCompassDirection(currentWindDirection)} (${formatValue(currentWindDirection)}°)`);
+    setText('[data-weather="wind-speed"]', formatValue(currentWindSpeed));
 
     // hourly forecast
     const forecastTimes = weatherData.hourly.time.map(t => new Date(t))
@@ -147,10 +177,26 @@ export default class extends Controller {
         clone.querySelector('[data-weather="wave-period"]').textContent = weatherData.hourly.wavePeriod[matchIndex].toFixed(1);
         clone.querySelector('[data-weather="wave-direction"]').textContent = getCompassDirection(weatherData.hourly.waveDirection[matchIndex]);
 
+        clone.querySelector('[data-weather="temperature"]').textContent = weatherData.hourly.temperature_2m[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="wind-speed"]').textContent = weatherData.hourly.wind_speed_10m[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="wind-direction"]').textContent =  getCompassDirection(weatherData.hourly.wind_direction_10m[matchIndex]);
+
         timeSlotsContainer.appendChild(clone)
       }
     })
   }
+
+  displayWeatherError(breakName) {
+    const weatherContainer = document.getElementById(`weather-${breakName.replace(/\s+/g, '-')}`)
+    if (!weatherContainer) return
+
+    weatherContainer.innerHTML = `
+      <div class="alert alert-warning py-2" role="alert">
+        <small>Unable to load weather data</small>
+      </div>
+    `
+  }
+
 
   createBreakCard(breakName, region, country, breakData) {
     const card = document.createElement('div')
@@ -178,39 +224,36 @@ export default class extends Controller {
     return card
   }
 
-  displayWeatherError(breakName) {
-    const weatherContainer = document.getElementById(`weather-${breakName.replace(/\s+/g, '-')}`)
-    if (!weatherContainer) return
 
-    weatherContainer.innerHTML = `
-      <div class="alert alert-warning py-2" role="alert">
-        <small>Unable to load weather data</small>
-      </div>
-    `
-  }
 
-  selectItem(event) {
-    event.preventDefault()
-    const selectedText = event.target.textContent.trim()
-    this.buttonTarget.textContent = selectedText
+  populateBreaksForCountry(selectedCountry) {
+    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
+    if (!breakDropdown) return
 
-    // Check if locations data is available
-    if (!this.locationsData || !this.locationsData.countries) {
-      console.error("Locations data not available:", this.locationsData)
-      return
-    }
+    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
 
-    // Handle cascading based on dropdown type
-    if (this.dropdownType === "country") {
-      this.populateRegions(selectedText)
-      this.clearBreaks()
-    } else if (this.dropdownType === "region") {
-      const selectedCountry = this.getSelectedCountry()
-      this.populateBreaks(selectedCountry, selectedText)
-    } else if (this.dropdownType === "break") {
-      const selectedCountry = this.getSelectedCountry()
-      const selectedRegion = this.getSelectedRegion()
-      this.displaySingleBreakCard(selectedCountry, selectedRegion, selectedText)
+    // Get all breaks for all regions in the country
+    const allBreaks = []
+    const countryData = this.locationsData.countries[selectedCountry] || {}
+
+    Object.entries(countryData).forEach(([region, regionData]) => {
+      Object.entries(regionData).forEach(([breakName, breakData]) => {
+        allBreaks.push({ name: breakName, region: region, data: breakData })
+      })
+    })
+
+    if (allBreaks.length > 0) {
+      breakMenu.innerHTML = allBreaks.map(breakItem =>
+        `<li><a class="dropdown-item"
+                href="#"
+                data-value="${breakItem.name}"
+                data-action="click->dropdown#selectItem">${breakItem.name}</a></li>`
+      ).join('')
+
+      // Display all breaks as cards
+      this.displayAllBreakCards(selectedCountry, allBreaks)
+    } else {
+      breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">No breaks available</span></li>'
     }
   }
 
@@ -285,6 +328,57 @@ export default class extends Controller {
     }
   }
 
+
+
+
+  clearBreaks() {
+    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
+    if (!breakDropdown) return
+
+    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
+    const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
+
+    breakButton.textContent = "Break"
+    breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">Select a region first</span></li>'
+
+    // Clear cards when changing country
+    this.clearBreakCards()
+  }
+
+  clearBreakCards() {
+    const cardsContainer = document.getElementById('break-cards-container')
+    if (cardsContainer) {
+      cardsContainer.innerHTML = ''
+    }
+  }
+
+
+
+  getSelectedCountry() {
+    const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
+    if (!countryDropdown) return null
+
+    const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
+    return countryButton ? countryButton.textContent.trim() : null
+  }
+
+  getSelectedRegion() {
+    const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
+    if (!regionDropdown) return null
+
+    const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
+    const regionText = regionButton ? regionButton.textContent.trim() : null
+
+    // Handle "All Regions" case
+    if (regionText === "All Regions" || regionText === "Region") {
+      return null
+    }
+
+    return regionText
+  }
+
+
+
   displayBreakCards(selectedCountry, selectedRegion, breaks) {
     // Get or create cards container
     let cardsContainer = document.getElementById('break-cards-container')
@@ -309,132 +403,6 @@ export default class extends Controller {
       const card = this.createBreakCard(breakName, selectedRegion, selectedCountry, breakData)
       cardsContainer.appendChild(card)
     })
-  }
-
-  createBreakCard(breakName, region, country, breakData) {
-    const card = document.createElement('div')
-    card.className = 'break-card card mb-3'
-    card.dataset.lat = breakData.latitude
-    card.dataset.lng = breakData.longitude
-
-    // Use the template instead of inline HTML
-    card.innerHTML = this.cardTemplate
-
-    // Populate the card data using data attributes
-    card.querySelector('[data-card="break-name"]').textContent = breakName
-    card.querySelector('[data-card="region"]').textContent = region
-    card.querySelector('[data-card="country"]').textContent = country
-    card.querySelector('[data-card="latitude"]').textContent = breakData.latitude
-    card.querySelector('[data-card="longitude"]').textContent = breakData.longitude
-
-    // Set the weather container ID
-    const weatherContainer = card.querySelector('[data-card="weather-container"]')
-    weatherContainer.id = `weather-${breakName.replace(/\s+/g, '-')}`
-
-    // Fetch weather data for this break
-    this.fetchWeatherData(breakData.latitude, breakData.longitude, breakName)
-
-    return card
-  }
-
-  populateBreaksForCountry(selectedCountry) {
-    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
-    if (!breakDropdown) return
-
-    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
-
-    // Get all breaks for all regions in the country
-    const allBreaks = []
-    const countryData = this.locationsData.countries[selectedCountry] || {}
-
-    Object.entries(countryData).forEach(([region, regionData]) => {
-      Object.entries(regionData).forEach(([breakName, breakData]) => {
-        allBreaks.push({ name: breakName, region: region, data: breakData })
-      })
-    })
-
-    if (allBreaks.length > 0) {
-      breakMenu.innerHTML = allBreaks.map(breakItem =>
-        `<li><a class="dropdown-item"
-                href="#"
-                data-value="${breakItem.name}"
-                data-action="click->dropdown#selectItem">${breakItem.name}</a></li>`
-      ).join('')
-
-      // Display all breaks as cards
-      this.displayAllBreakCards(selectedCountry, allBreaks)
-    } else {
-      breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">No breaks available</span></li>'
-    }
-  }
-
-  displayAllBreakCards(selectedCountry, allBreaks) {
-    // Get or create cards container
-    let cardsContainer = document.getElementById('break-cards-container')
-    if (!cardsContainer) {
-      cardsContainer = document.createElement('div')
-      cardsContainer.id = 'break-cards-container'
-      cardsContainer.className = 'break-cards'
-
-      // Insert after search wrapper
-      const searchWrapper = document.querySelector('.search-wrapper')
-      if (searchWrapper) {
-        searchWrapper.insertAdjacentElement('afterend', cardsContainer)
-      }
-    }
-
-    // Clear existing cards
-    cardsContainer.innerHTML = ''
-
-    // Create cards for each break
-    allBreaks.forEach(breakItem => {
-      const card = this.createBreakCard(breakItem.name, breakItem.region, selectedCountry, breakItem.data)
-      cardsContainer.appendChild(card)
-    })
-  }
-
-  clearBreaks() {
-    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
-    if (!breakDropdown) return
-
-    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
-    const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
-
-    breakButton.textContent = "Break"
-    breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">Select a region first</span></li>'
-
-    // Clear cards when changing country
-    this.clearBreakCards()
-  }
-
-  clearBreakCards() {
-    const cardsContainer = document.getElementById('break-cards-container')
-    if (cardsContainer) {
-      cardsContainer.innerHTML = ''
-    }
-  }
-
-  getSelectedCountry() {
-    const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
-    if (!countryDropdown) return null
-
-    const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
-    return countryButton ? countryButton.textContent.trim() : null
-  }
-
-  getSelectedRegion() {
-    const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
-    if (!regionDropdown) return null
-
-    const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
-    const regionText = regionButton ? regionButton.textContent.trim() : null
-
-    // Handle "All Regions" case
-    if (regionText === "All Regions" || regionText === "Region") {
-      return null
-    }
-
-    return regionText
   }
 
   displaySingleBreakCard(selectedCountry, selectedRegion, selectedBreak) {
@@ -479,6 +447,58 @@ export default class extends Controller {
       cardsContainer.appendChild(card)
     } else {
       console.error(`Break "${selectedBreak}" not found in ${selectedCountry}`)
+    }
+  }
+
+  displayAllBreakCards(selectedCountry, allBreaks) {
+    // Get or create cards container
+    let cardsContainer = document.getElementById('break-cards-container')
+    if (!cardsContainer) {
+      cardsContainer = document.createElement('div')
+      cardsContainer.id = 'break-cards-container'
+      cardsContainer.className = 'break-cards'
+
+      // Insert after search wrapper
+      const searchWrapper = document.querySelector('.search-wrapper')
+      if (searchWrapper) {
+        searchWrapper.insertAdjacentElement('afterend', cardsContainer)
+      }
+    }
+
+    // Clear existing cards
+    cardsContainer.innerHTML = ''
+
+    // Create cards for each break
+    allBreaks.forEach(breakItem => {
+      const card = this.createBreakCard(breakItem.name, breakItem.region, selectedCountry, breakItem.data)
+      cardsContainer.appendChild(card)
+    })
+  }
+
+
+
+  selectItem(event) {
+    event.preventDefault()
+    const selectedText = event.target.textContent.trim()
+    this.buttonTarget.textContent = selectedText
+
+    // Check if locations data is available
+    if (!this.locationsData || !this.locationsData.countries) {
+      console.error("Locations data not available:", this.locationsData)
+      return
+    }
+
+    // Handle cascading based on dropdown type
+    if (this.dropdownType === "country") {
+      this.populateRegions(selectedText)
+      this.clearBreaks()
+    } else if (this.dropdownType === "region") {
+      const selectedCountry = this.getSelectedCountry()
+      this.populateBreaks(selectedCountry, selectedText)
+    } else if (this.dropdownType === "break") {
+      const selectedCountry = this.getSelectedCountry()
+      const selectedRegion = this.getSelectedRegion()
+      this.displaySingleBreakCard(selectedCountry, selectedRegion, selectedText)
     }
   }
 }
