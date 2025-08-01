@@ -1,11 +1,11 @@
 .forecast-grid {
   display: none;
-  grid-template-columns: 1fr 6fr;
+  grid-template-columns: 0.5fr 6fr;
   gap: 8px;
   padding: 16px;
   padding-left: 0px;
   font-family: sans-serif;
-  max-width: 1200px;
+  max-width: fit-content;
   margin: auto 0px;
   padding-top: 2rem;
   padding-bottom: 1rem;
@@ -64,6 +64,11 @@
   margin-right: 2rem;
 }
 
+.forecast-labels {
+  width: fit-content;
+  display: inherit;
+  justify-self: center;
+}
 
 
 
