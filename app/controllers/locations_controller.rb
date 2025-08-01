@@ -4,6 +4,9 @@ class LocationsController < ApplicationController
 
   def new
     @location = Location.new()
+    # this code below allows us access to the location index while using the same
+    # GET request from the new method
+    @locations = current_user.locations.all
   end
 
   def create
@@ -12,8 +15,8 @@ class LocationsController < ApplicationController
     respond_to do |format|
       if @location.save
         format.html { redirect_to root_path, notice: 'Location saved successfully!' }
-        format.json { render json: { status: 'success', message: 'Location saved successfully!' } }
-      elsif current_user.nill
+        format.json { render json: { status: 'success', message: 'Location saved successfully!', location_id: @location.id } }
+      elsif current_user.nil?
         format.html { redirect_to root_path, alert: 'Log-in to save locations' }
         format.json { render json: { status: 'error', message: 'Log-in to save locations', errors: @location.errors } }
 
@@ -21,6 +24,25 @@ class LocationsController < ApplicationController
         format.html { redirect_to root_path, alert: 'Failed to save location.' }
         format.json { render json: { status: 'error', message: 'Failed to save location.', errors: @location.errors } }
       end
+    end
+  end
+
+  def destroy
+    @location = current_user.locations.find(params[:id])
+
+    respond_to do |format|
+      if @location.destroy
+        format.html { redirect_to root_path, notice: 'Location removed successfully!' }
+        format.json { render json: { status: 'success', message: 'Location removed successfully!' } }
+      else
+        format.html { redirect_to root_path, alert: 'Failed to remove location.' }
+        format.json { render json: { status: 'error', message: 'Failed to remove location.', errors: @location.errors } }
+      end
+    end
+  rescue ActiveRecord::RecordNotFound
+    respond_to do |format|
+      format.html { redirect_to root_path, alert: 'Location not found.' }
+      format.json { render json: { status: 'error', message: 'Location not found.' } }
     end
   end
 
@@ -33,9 +55,7 @@ class LocationsController < ApplicationController
   private
 
   def location_params
-
     params.require(:location).permit(:latitude, :longitude, :region, :country, :break)
-
   end
 
 end

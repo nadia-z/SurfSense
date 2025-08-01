@@ -2,16 +2,7 @@
      data-controller="forecast"
      data-dropdown-target="card"
      data-action="click->forecast#focusOnCard click->forecast#toggleLongForecastInfo">
-  <div style="display: flex; justify-content: space-between;"
-       data-controller="save-location">
-    <h5 class="card-title" data-card="break-name">Loading...</h5>
-    <button class="button-remove"
-            data-save-location-target="deleteButton"
-            data-action="click->save-location#deleteLocation"
-            title="Remove saved location">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
+  <h5 class="card-title" data-card="break-name">Loading...</h5>
   <p class="card-text">
     <small class="text-muted"><span data-card="region">--</span>, <span data-card="country">--</span></small><br>
     <small class="text-muted">Lat: <span data-card="latitude">--</span></small>
