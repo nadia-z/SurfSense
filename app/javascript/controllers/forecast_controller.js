@@ -70,6 +70,7 @@ export default class extends Controller {
     console.log("swellHeightEl is:")
     console.log(swellHeightEl)
     const swellHeight = parseFloat(swellHeightEl?.dataset.swellHeight || "0")
+    console.log(swellHeightEl?.dataset.swellHeight)
 
     // Dispatch updated data
     document.dispatchEvent(new CustomEvent("swell:updated", {
@@ -103,7 +104,9 @@ export default class extends Controller {
         this.blurNodes(nodes, [4, 8])
         initializeNodeClickListeners(nodes, edges, svg, { applyBlur, removeBlur })
         this.updateSwellHeightText(swellHeight)
-        updateSwellAnswer(swellAnswerEl, swellHeight)
+        console.log("swellHeight is:")
+        console.log(swellHeight)
+        updateSwellHeightAnswer(swellAnswerEl, swellHeight)
       })
   }
 

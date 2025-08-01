@@ -127,15 +127,20 @@ export default class extends Controller {
         date.getFullYear() === today.getFullYear()
       )
 
-      console.log(`Looking for hour ${hour}: found at index ${matchIndex}, date:`, forecastTimes[matchIndex])
-
       if (matchIndex !== -1) {
         const clone = template.content.cloneNode(true)
         const timeStr = forecastTimes[matchIndex].toLocaleTimeString([], { hour: 'numeric', hour12: true });
 
         // Fill in forecast values
         clone.querySelector('[data-weather="time"]').textContent = timeStr;
-        clone.querySelector('[data-weather="swell-height"]').textContent = weatherData.hourly.swellWaveHeight[matchIndex].toFixed(1);
+
+        // swell height
+        const swellEl = clone.querySelector('[data-weather="swell-height"]');
+        const swellValue = weatherData.hourly.swellWaveHeight[matchIndex].toFixed(1);
+        // add visible text and dataset attribute, to be able to acces if from other controllers
+        swellEl.textContent = swellValue;
+        swellEl.dataset.swellHeight = swellValue;
+
         clone.querySelector('[data-weather="swell-period"]').textContent = weatherData.hourly.swellWavePeriod[matchIndex].toFixed(1);
         clone.querySelector('[data-weather="swell-direction"]').textContent = getCompassDirection(weatherData.hourly.swellWaveDirection[matchIndex]);
         clone.querySelector('[data-weather="wave-height"]').textContent = weatherData.hourly.waveHeight[matchIndex].toFixed(1);
