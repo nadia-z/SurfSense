@@ -7,7 +7,7 @@ export default class extends Controller {
   static targets = ["card"]
 
   connect() {
-    console.log("Forecast controller connected")
+
   }
 
   selectCard(event) {
@@ -18,17 +18,13 @@ export default class extends Controller {
 
   toggleLongForecastInfo(event) {
     const forecastContainer = document.getElementById("forecast-container")
-    console.log("we are in toggleForecastInfo now")
     forecastContainer.style.display = "grid"
 
-    const buttonBack = document.getElementById("btn-back")
-     if (buttonBack) {
-       buttonBack.style.display = "block"
-     }
+    const currentForecastContainer = document.querySelector('.row')
+    currentForecastContainer.style.display = 'none'
   }
 
   focusOnCard(event) {
-    console.log("we are in focusOnCard now")
     const cardsContainer = document.getElementById("break-cards-container")
     cardsContainer.innerHTML = ""
     cardsContainer.insertBefore(event.currentTarget.parentElement, null)

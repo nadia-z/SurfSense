@@ -17,6 +17,8 @@
 <div style="margin-top: 1rem;">
   <%= render 'shared/forecast_grid' %>
 </div>
+
+<!-- save location AJAX form heart button and time update bottom left corner -->
 <div class="mt-2" style="display: flex; justify-content: space-between; align-items: center;">
   <small class="text-muted col-6" style="align-self: center;">
     <i class="fas fa-clock"></i> Updated: <span data-weather="timestamp">--</span> (<span data-weather="timezone">--</span>)
@@ -31,6 +33,7 @@
 
     <div class="heart-save"
          data-save-location-target="button"
+         data-current-user="<%= current_user %>"
          data-action="click->save-location#saveLocation">
       <i class="far fa-heart"></i>
     </div>
