@@ -5,7 +5,6 @@
   flex-direction: row;
   gap: 1.5rem;
   margin-top: 7rem;
-  width: 1200px;
 }
 
 .break-card {
@@ -63,17 +62,5 @@
         margin-right: 0.25rem;
       }
     }
-  }
-}
-
-@media (max-width: 768px) {
-  .break-cards {
-    flex-direction: column;
-    width: 95%;
-  }
-
-  .break-card {
-    min-width: unset;
-    width: 100%;
   }
 }

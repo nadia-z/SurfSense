@@ -7,6 +7,7 @@ import "@popperjs/core"
 import "bootstrap"
 //import "./flowchart"
 
+// this below makes sure that the offcanvas page is loaded just once per session
 
 document.addEventListener("DOMContentLoaded", function() {
   console.log("DOMContentLoaded event fired");
