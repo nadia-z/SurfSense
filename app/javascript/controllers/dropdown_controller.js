@@ -13,8 +13,87 @@ export default class extends Controller {
     this.weatherTemplate = document.getElementById('weather-template').innerHTML
     this.cardTemplate = document.getElementById('card-template').innerHTML
   }
-// API request snippet from API documentation, add data requests here following documentation
-// in case we want to have more information about the forecast
+
+  // Get saved locations from global window object or weather template
+  getSavedLocations() {
+    // First try global data
+    if (window.savedLocationsData) {
+      return window.savedLocationsData
+    }
+
+    // Fallback to weather template data attribute
+    const weatherTemplate = document.getElementById('weather-template')
+    if (weatherTemplate) {
+      const locationsValue = weatherTemplate.dataset.saveLocationLocationsValue
+      try {
+        return locationsValue ? JSON.parse(locationsValue) : []
+      } catch (e) {
+        console.error('Error parsing saved locations:', e)
+        return []
+      }
+    }
+    return []
+  }
+
+  // Check if a location is already saved
+  isLocationSaved(breakName, region, country, latitude, longitude) {
+    const savedLocations = this.getSavedLocations()
+    if (!savedLocations || savedLocations.length === 0) {
+      return false
+    }
+
+    return savedLocations.some(location =>
+      location.break === breakName &&
+      location.region === region &&
+      location.country === country &&
+      parseFloat(location.latitude) === parseFloat(latitude) &&
+      parseFloat(location.longitude) === parseFloat(longitude)
+    )
+  }
+
+  // Handle heart button visibility based on whether location is saved
+  handleHeartButtonVisibility(weatherContainer, breakName, region, country, latitude, longitude) {
+    const heartButton = weatherContainer.querySelector('.heart-save')
+    // Delete button is now in the card, not the weather container
+    const card = weatherContainer.closest('.break-card')
+    const deleteButton = card ? card.querySelector('.button-remove') : null
+
+    if (this.isLocationSaved(breakName, region, country, latitude, longitude)) {
+      // Show filled heart and make non-clickable for saved locations
+      if (heartButton) {
+        const heartIcon = heartButton.querySelector('i')
+        if (heartIcon) {
+          heartIcon.classList.remove('far', 'fa-heart')
+          heartIcon.classList.add('fas', 'fa-heart')
+        }
+        heartButton.style.pointerEvents = 'none'
+        heartButton.style.opacity = '0.7'
+        heartButton.setAttribute('title', 'Location already saved')
+      }
+      // Show delete button for saved locations
+      if (deleteButton) {
+        deleteButton.style.display = 'inline-block'
+      }
+    } else {
+      // Show empty heart and make clickable for unsaved locations
+      if (heartButton) {
+        const heartIcon = heartButton.querySelector('i')
+        if (heartIcon) {
+          heartIcon.classList.remove('fas', 'fa-solid')
+          heartIcon.classList.add('far', 'fa-heart')
+        }
+        heartButton.style.pointerEvents = 'auto'
+        heartButton.style.opacity = '1'
+        heartButton.setAttribute('title', 'Save location')
+      }
+      // Hide delete button for unsaved locations
+      if (deleteButton) {
+        deleteButton.style.display = 'none'
+      }
+    }
+  }
+
+
 
   async fetchWeatherData(lat, lng, breakName) {
     try {
@@ -33,11 +112,28 @@ export default class extends Controller {
         "timezone": "auto"
       }
 
+      const params3 = {
+        "latitude": lat,
+        "longitude": lng,
+        "hourly": ["sea_level_height_msl"],
+        "timezone": "auto",
+        "forecast_days": 3
+      }
+
       const urlMarine = "https://marine-api.open-meteo.com/v1/marine"
       const urlWeather = "https://api.open-meteo.com/v1/forecast"
 
       const responses1 = await fetchWeatherApi(urlMarine, params1)
       const responses2 = await fetchWeatherApi(urlWeather, params2)
+
+      // Try to fetch tide data, but continue if it fails
+      let tideResponse = null
+      try {
+        const responses3 = await fetchWeatherApi(urlMarine, params3)
+        tideResponse = responses3[0]
+      } catch (tideError) {
+        console.warn('Failed to fetch tide data:', tideError)
+      }
 
       // Process first location for each model
       const marineResponse = responses1[0]
@@ -52,8 +148,9 @@ export default class extends Controller {
 
       const marineHourly = marineResponse.hourly()
       const weatherHourly = weatherResponse.hourly()
+      const tideHourly = tideResponse ? tideResponse.hourly() : null
 
-      // Create weather data structure, merging both marine and weather hourly data
+      // Create weather data structure, merging marine, weather, and tide data
       const weatherData = {
         location: {
           latitude,
@@ -75,13 +172,71 @@ export default class extends Controller {
           temperature_2m: weatherHourly.variables(0).valuesArray(),
           wind_speed_10m: weatherHourly.variables(1).valuesArray(),
           wind_direction_10m: weatherHourly.variables(2).valuesArray(),
-        },
-      }
+      // Add tide data (hourly intervals) - will be null if tide API failed
+      seaLevelHeight: tideHourly ? tideHourly.variables(0).valuesArray() : null,
+    },
+  }
 
       this.displayWeatherData(weatherData, breakName)
     } catch (error) {
       console.error('Error fetching weather data:', error)
       this.displayWeatherError(breakName)
+    }
+  }
+
+  // Helper function to get current tide level
+  getCurrentTideLevel(seaLevelHeightArray, timeArray) {
+    if (!seaLevelHeightArray || !timeArray) {
+      return null
+    }
+
+    const now = new Date()
+
+    // Find the closest time index to now
+    let currentIndex = 0
+    let minTimeDiff = Math.abs(timeArray[0].getTime() - now.getTime())
+
+    for (let i = 1; i < timeArray.length; i++) {
+      const timeDiff = Math.abs(timeArray[i].getTime() - now.getTime())
+      if (timeDiff < minTimeDiff) {
+        minTimeDiff = timeDiff
+        currentIndex = i
+      }
+    }
+
+    return seaLevelHeightArray[currentIndex]
+  }
+
+  // Helper function to convert tide level to descriptive text
+  getTideText(tideLevel, dailyTideData) {
+    if (!tideLevel || !dailyTideData || dailyTideData.length === 0) {
+      return 'N/A'
+    }
+
+    // Get daily min and max tide values
+    const minTide = Math.min(...dailyTideData)
+    const maxTide = Math.max(...dailyTideData)
+    const tideRange = maxTide - minTide
+
+    // If tidal range is very small (less than 0.1m), just show the level
+    if (tideRange < 0.1) {
+      return `${tideLevel.toFixed(1)}m`
+    }
+
+    // Calculate thresholds for categorization
+    // Low: bottom 5% of range, High: top 5% of range
+    const lowThreshold = minTide + (tideRange * 0.05
+    )
+    const highThreshold = minTide + (tideRange * 0.95)
+
+    if (tideLevel <= lowThreshold) {
+      return 'Low'
+    } else if (tideLevel >= highThreshold) {
+      return 'High'
+    } else if (tideLevel < (minTide + maxTide) / 2) {
+      return 'Mid-Low'
+    } else {
+      return 'Mid-High'
     }
   }
 
@@ -103,6 +258,12 @@ export default class extends Controller {
     const currentWindSpeed = weatherData.hourly.wind_speed_10m[currentHour]
     const currentWindDirection = weatherData.hourly.wind_direction_10m[currentHour]
 
+    // Get current tide level
+    const currentTideLevel = this.getCurrentTideLevel(weatherData.hourly.seaLevelHeight, weatherData.hourly.time)
+
+    // Get today's tide data for text conversion
+    const todayTideData = weatherData.hourly.seaLevelHeight ? weatherData.hourly.seaLevelHeight.slice(0, 24) : null
+
     // Get today's max wave height
     const todayMaxWave = Math.max(...weatherData.hourly.waveHeight.slice(0, 24))
     const todayMaxSwell = Math.max(...weatherData.hourly.swellWaveHeight.slice(0, 24))
@@ -120,6 +281,16 @@ export default class extends Controller {
 
     // Use the template instead of inline HTML
     weatherContainer.innerHTML = this.weatherTemplate
+
+    // Get location details from the card
+    const card = weatherContainer.closest('.break-card')
+    const region = card?.querySelector('[data-card="region"]')?.textContent || ''
+    const country = card?.querySelector('[data-card="country"]')?.textContent || ''
+    const latitude = card?.querySelector('[data-card="latitude"]')?.textContent || ''
+    const longitude = card?.querySelector('[data-card="longitude"]')?.textContent || ''
+
+    // Check if location is saved and hide heart button if it is
+    this.handleHeartButtonVisibility(weatherContainer, breakName, region, country, latitude, longitude)
 
     // Populate the data using data attributes, with null checks
     const setText = (selector, value) => {
@@ -140,6 +311,9 @@ export default class extends Controller {
     setText('[data-weather="temperature"]', formatValue(currentTemperature));
     setText('[data-weather="wind-direction"]', `${getCompassDirection(currentWindDirection)} (${formatValue(currentWindDirection)}°)`);
     setText('[data-weather="wind-speed"]', formatValue(currentWindSpeed));
+
+    // Add tide information
+    setText('[data-weather="tide-current"]', this.getTideText(currentTideLevel, todayTideData));
 
     // hourly forecast
     const forecastTimes = weatherData.hourly.time.map(t => new Date(t))
@@ -181,6 +355,13 @@ export default class extends Controller {
         clone.querySelector('[data-weather="wind-speed"]').textContent = weatherData.hourly.wind_speed_10m[matchIndex].toFixed(1);
         clone.querySelector('[data-weather="wind-direction"]').textContent =  getCompassDirection(weatherData.hourly.wind_direction_10m[matchIndex]);
 
+        // Add tide data for this time slot
+        const tideLevel = weatherData.hourly.seaLevelHeight && weatherData.hourly.seaLevelHeight[matchIndex] !== null
+          ? weatherData.hourly.seaLevelHeight[matchIndex]
+          : null;
+        const tideText = this.getTideText(tideLevel, todayTideData);
+        clone.querySelector('[data-weather="tide-current"]').textContent = tideText;
+
         timeSlotsContainer.appendChild(clone)
       }
     })
@@ -218,8 +399,23 @@ export default class extends Controller {
     const weatherContainer = card.querySelector('[data-card="weather-container"]')
     weatherContainer.id = `weather-${breakName.replace(/\s+/g, '-')}`
 
+    // Handle delete button visibility based on whether location is saved
+    const deleteButton = card.querySelector('.button-remove')
+    if (deleteButton) {
+      if (this.isLocationSaved(breakName, region, country, breakData.latitude, breakData.longitude)) {
+        deleteButton.style.display = 'inline-block'
+      } else {
+        deleteButton.style.display = 'none'
+      }
+    }
+
     // Fetch weather data for this break
     this.fetchWeatherData(breakData.latitude, breakData.longitude, breakName)
+
+    const saveButton = document.querySelector('.button-container')
+    if (saveButton) {
+      saveButton.style.display = 'block'
+    }
 
     return card
   }
