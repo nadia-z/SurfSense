@@ -5,7 +5,6 @@ import "@hotwired/turbo-rails"
 import "controllers"
 import "@popperjs/core"
 import "bootstrap"
-import "@popperjs/core"
 //import "./flowchart"
 
 // this below makes sure that the offcanvas page is loaded just once per session
