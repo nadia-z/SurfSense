@@ -16,7 +16,7 @@ export default class extends Controller {
       Rem_btn.innerText = "go back"
     } else {
       Del_btn.classList.add('d-none')
-      Rem_btn.innertext = "remove picture"
+      Rem_btn.innerText = "remove picture"
     }
   }
 
