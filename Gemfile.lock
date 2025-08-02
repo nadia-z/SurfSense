@@ -402,6 +402,7 @@ DEPENDENCIES
   ostruct
   pg (~> 1.1)
   pg_search
+  popper_js (~> 2.11.8)
   puma (>= 5.0)
   rails (~> 7.1.5, >= 7.1.5.1)
   rollbar
