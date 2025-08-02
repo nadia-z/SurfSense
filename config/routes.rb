@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users
+  resources :users, only: [:show, :edit, :update]
+  post "users/:id", to: "users#delete_photo"
   root to: "pages#home"
 
   resources :locations, only: [:new, :create]
