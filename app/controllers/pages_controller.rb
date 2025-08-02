@@ -20,6 +20,10 @@ class PagesController < ApplicationController
     end
   end
 
+  def about
+end
+
+
   private  def build_locations_structure(locations_data)
     structure = { "countries" => {} }
 

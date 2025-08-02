@@ -6,6 +6,7 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %> <!-- This line loads JS packages from importmap, such as Bootstrap -->
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap');
     </style>
