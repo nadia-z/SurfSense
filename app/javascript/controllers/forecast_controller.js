@@ -8,8 +8,18 @@ export default class extends Controller {
   static targets = ["card"]
 
   connect() {
+<<<<<<< Updated upstream
     console.log("Forecast controller connected")
   }
+=======
+  console.log("Forecast controller connected");
+
+  document.addEventListener("timeSlot:selected", (event) => {
+    const { swellHeight } = event.detail;
+    this.showFlowchartWithUpdatedData(swellHeight);
+  });
+}
+>>>>>>> Stashed changes
 
   selectCard(event) {
     event.preventDefault()
@@ -48,49 +58,30 @@ export default class extends Controller {
     console.log('DONE - Deactivated')
   }
 
-  switchToFlowChart(event) {
-    event.preventDefault()
-    console.log("switch to flowchart")
-    // Find the parent .break-card element
-    const breakCard = this.element.closest('.break-card');
-    // remove the parent element so that only the flowchart remains visible
-    if (breakCard) {
-      breakCard.remove();
-    }
-    const forecastContainer = document.getElementById("forecast-container")
+  showFlowchartWithUpdatedData(swellHeight) {
+    console.log("Flowchart triggered from time slot");
+    console.log("swellHeight passed in:", swellHeight);
+
+
     const flowchartContainer = document.getElementById("flowchart-container")
+    flowchartContainer.style.display = "block";
+    flowchartContainer.style.width = "100%";
+    flowchartContainer.style.height = "auto";
+    flowchartContainer.style.minHeight = "600px";
     const svgContainer = document.getElementById("svg-container")
 
-    // Reset flowchart visuals
-    svgContainer.innerHTML = ""
-    flowchartContainer.dataset.loaded = "false"
-
-    // Read updated forecast values
-    const swellHeightEl = document.querySelector('[data-weather="swell-height"]')
-    console.log("swellHeightEl is:")
-    console.log(swellHeightEl)
-    const swellHeight = parseFloat(swellHeightEl?.dataset.swellHeight || "0")
-    console.log(swellHeightEl?.dataset.swellHeight)
-
-    // Dispatch updated data
-    document.dispatchEvent(new CustomEvent("swell:updated", {
-      detail: { swellHeight }
-    }))
-
-    const timeLabel = event.currentTarget.innerText.trim()
-    console.log("swellHeight is:")
-    console.log(swellHeight)
-
-    forecastContainer.style.display = "none"
-    flowchartContainer.style.display = "block"
-
-    if (flowchartContainer.dataset.loaded === "true") return
+     if (flowchartContainer.dataset.loaded === "true") {
+    console.log("SVG already loaded, skipping fetch");
+    return;
+  }
 
     fetch("/flowchart.svg")
       .then(res => res.text())
       .then(svgText => {
         svgContainer.innerHTML = svgText
+        console.log(svgContainer.innerHTML)
         flowchartContainer.dataset.loaded = "true"
+        flowchartContainer.style.display = "block"
         const svg = document.querySelector("svg")
 
         createDefs(svg)
@@ -103,7 +94,6 @@ export default class extends Controller {
         this.showNodesAndEdges(nodes, svg, [0, 1, 2, 3])
         this.blurNodes(nodes, [4, 8])
         initializeNodeClickListeners(nodes, edges, svg, { applyBlur, removeBlur })
-        this.updateSwellHeightText(swellHeight)
         console.log("swellHeight is:")
         console.log(swellHeight)
         updateSwellHeightAnswer(swellAnswerEl, swellHeight)
@@ -149,16 +139,5 @@ export default class extends Controller {
       node.setAttribute("filter", "url(#blur-effect)")
       node.style.pointerEvents = "none"
     })
-  }
-
-  updateSwellHeightText(swellHeight) {
-    if (!swellHeight) return
-    const newText = document.createElementNS("http://www.w3.org/2000/svg", "text")
-    newText.setAttribute("id", "swell-value")
-    newText.setAttribute("x", "110")
-    newText.setAttribute("y", "400")
-    newText.setAttribute("fill", "black")
-    newText.textContent = "0.6 m"
-    swellHeight.parentNode.replaceChild(newText, swellHeight)
   }
 }

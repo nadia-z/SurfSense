@@ -1,0 +1,13 @@
+#flowchart-container, #svg-container {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 200px; /* Forces space so you can see content */
+  border: 1px solid red; /* Just to visualize for now */
+}
+svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px dashed green; /* Optional, for visual debugging */
+}
