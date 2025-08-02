@@ -319,7 +319,7 @@ export default class extends Controller {
     const forecastTimes = weatherData.hourly.time.map(t => new Date(t))
     const hoursToShow = [6, 9, 12, 15, 18, 21]
     const template = document.getElementById('time-slot-template')
-    const timeSlotsContainer = document.querySelector('.time-slots-container')
+    const timeSlotsContainer = weatherContainer.querySelector('.time-slots-container')
     timeSlotsContainer.innerHTML = ""
 
     hoursToShow.forEach(hour => {
