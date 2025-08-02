@@ -31,12 +31,21 @@ class LocationsController < ApplicationController
     @location = current_user.locations.find(params[:id])
 
     respond_to do |format|
-      if @location.destroy
-        format.html { redirect_to root_path, notice: 'Location removed successfully!' }
-        format.json { render json: { status: 'success', message: 'Location removed successfully!' } }
-      else
-        format.html { redirect_to root_path, alert: 'Failed to remove location.' }
-        format.json { render json: { status: 'error', message: 'Failed to remove location.', errors: @location.errors } }
+      begin
+        # First delete any associated selected_forecast
+        @location.selected_forecast&.destroy
+
+        # Then delete the location
+        if @location.destroy
+          format.html { redirect_to root_path, notice: 'Location removed successfully!' }
+          format.json { render json: { status: 'success', message: 'Location removed successfully!' } }
+        else
+          format.html { redirect_to root_path, alert: 'Failed to remove location.' }
+          format.json { render json: { status: 'error', message: 'Failed to remove location.', errors: @location.errors } }
+        end
+      rescue ActiveRecord::InvalidForeignKey => e
+        format.html { redirect_to root_path, alert: 'Cannot delete location: it has associated data.' }
+        format.json { render json: { status: 'error', message: 'Cannot delete location: it has associated data.' } }
       end
     end
   rescue ActiveRecord::RecordNotFound

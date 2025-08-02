@@ -1,6 +1,6 @@
 class Location < ApplicationRecord
   belongs_to :user
-  has_one :selected_forecast
+  has_one :selected_forecast, dependent: :destroy
 
   include PgSearch::Model
 

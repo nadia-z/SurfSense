@@ -9,16 +9,31 @@ export default class extends Controller {
     // Access locations data through Stimulus values
     this.locationsData = this.locationsValue
 
+    console.log('Save Location Controller connected!')
+    console.log('Locations data received:', this.locationsData)
+    console.log('Number of locations:', this.locationsData ? this.locationsData.length : 0)
+
+    // If this instance has locations data, make it globally available
     if (this.locationsData && this.locationsData.length > 0) {
+      window.globalSavedLocations = this.locationsData
       this.visualizeSaved()
+    } else if (window.globalSavedLocations) {
+      // If no local data but global data exists, use global data
+      this.locationsData = window.globalSavedLocations
+      console.log('Using global locations data:', this.locationsData.length, 'locations')
     }
   }  // Check if a location is already saved by the current user
   isLocationSaved(breakName, region, country, latitude, longitude) {
-    if (!this.locationsData || this.locationsData.length === 0) {
+    // Use instance data first, fallback to global data
+    const locationsToCheck = this.locationsData && this.locationsData.length > 0
+      ? this.locationsData
+      : window.globalSavedLocations || []
+
+    if (!locationsToCheck || locationsToCheck.length === 0) {
       return false
     }
 
-    return this.locationsData.some(location =>
+    return locationsToCheck.some(location =>
       location.break === breakName &&
       location.region === region &&
       location.country === country &&
@@ -102,6 +117,51 @@ export default class extends Controller {
         const deleteButton = card.querySelector('.button-remove')
         if (deleteButton) {
           deleteButton.style.display = 'inline-block'
+        }
+      }
+    })
+  }
+
+  // Update heart buttons for newly saved location (exclude saved locations section to avoid conflicts)
+  updateHeartButtonsForNewSave(breakName, region, country, latitude, longitude) {
+    const allCards = document.querySelectorAll('.break-card')
+
+    allCards.forEach(card => {
+      // Skip cards in the saved locations container to avoid conflicts
+      const savedContainer = document.getElementById('break-cards-container')
+      if (savedContainer && savedContainer.contains(card)) {
+        return
+      }
+
+      const cardBreak = card.querySelector('[data-card="break-name"]')?.textContent
+      const cardRegion = card.querySelector('[data-card="region"]')?.textContent
+      const cardCountry = card.querySelector('[data-card="country"]')?.textContent
+      const cardLat = card.querySelector('[data-card="latitude"]')?.textContent
+      const cardLng = card.querySelector('[data-card="longitude"]')?.textContent
+
+      if (cardBreak === breakName &&
+          cardRegion === region &&
+          cardCountry === country &&
+          parseFloat(cardLat) === parseFloat(latitude) &&
+          parseFloat(cardLng) === parseFloat(longitude)) {
+
+        const heartButton = card.querySelector('.heart-save')
+        if (heartButton) {
+          // Show filled heart and make non-clickable for saved locations
+          const heartIcon = heartButton.querySelector('i')
+          if (heartIcon) {
+            heartIcon.classList.remove('far', 'fa-heart')
+            heartIcon.classList.add('fas', 'fa-heart')
+          }
+          heartButton.style.pointerEvents = 'none'
+          heartButton.style.opacity = '0.7'
+          heartButton.setAttribute('title', 'Location already saved')
+        }
+
+        // Hide delete button for non-saved location cards
+        const deleteButton = card.querySelector('.button-remove')
+        if (deleteButton) {
+          deleteButton.style.display = 'none'
         }
       }
     })
@@ -266,6 +326,11 @@ export default class extends Controller {
   }
 
   visualizeSaved() {
+    // Don't show anything if there are no locations to display
+    if (!this.locationsData || this.locationsData.length === 0) {
+      return
+    }
+
     // Get or create the break cards container (same as dropdown controller uses)
     let cardsContainer = document.getElementById('break-cards-container')
     if (!cardsContainer) {
@@ -286,13 +351,21 @@ export default class extends Controller {
       }
     }
 
-    // Add a header for saved locations if container is empty
-    if (cardsContainer.children.length === 0) {
-      const savedHeader = document.createElement('h3')
-      savedHeader.textContent = 'Your Saved Locations'
-      savedHeader.className = 'saved-locations-header mt-4 mb-3'
-      cardsContainer.appendChild(savedHeader)
+    // Clear existing saved location cards to prevent duplicates
+    const existingCards = cardsContainer.querySelectorAll('.break-card')
+    existingCards.forEach(card => card.remove())
+
+    // Clear existing header
+    const existingHeader = cardsContainer.querySelector('.saved-locations-header')
+    if (existingHeader) {
+      existingHeader.remove()
     }
+
+    // Add a header for saved locations
+    const savedHeader = document.createElement('h3')
+    savedHeader.textContent = 'Your Saved Locations'
+    savedHeader.className = 'saved-locations-header mt-4 mb-3'
+    cardsContainer.appendChild(savedHeader)
 
     // Get the dropdown controller instance to use its methods
     const dropdownElement = document.querySelector('[data-controller="dropdown"]')
@@ -347,12 +420,6 @@ export default class extends Controller {
   }
 
   deleteLocation(event) {
-    console.log('Delete button clicked - basic implementation')
-    event.preventDefault()
-
-    // TODO: Implement delete functionality
-    alert('Delete functionality to be implemented')
-
     console.log('deleteLocation method triggered')
     console.log('Event type:', event.type)
     console.log('Event target:', event.target)
@@ -362,8 +429,144 @@ export default class extends Controller {
 
     console.log('Deleting location...')
 
+    const clickedCard = event.target.closest('.break-card')
+    if (!clickedCard) {
+      alert('Error: Could not find the location card.')
+      return
+    }
 
+    const latitude = clickedCard.querySelector('[data-card="latitude"]')
+    if (!latitude) {
+      alert('Error: Could not find location data.')
+      return
+    }
 
+    // Get the location data from the specific card
+    const breakLat = latitude.textContent
+    console.log('Looking for location with latitude:', breakLat)
+
+    // Find the location to delete
+    let locationToDelete = null
+    this.locationsData.forEach((location) => {
+      if (location.latitude == breakLat) {
+        locationToDelete = location
+      }
+    })
+
+    if (!locationToDelete) {
+      alert('Error: Could not find location to delete.')
+      return
+    }
+
+    console.log('Found location to delete:', locationToDelete)
+
+    // Confirm deletion
+    if (!confirm(`Are you sure you want to delete ${locationToDelete.break}, ${locationToDelete.region}?`)) {
+      return
+    }
+
+    this.sendDeleteRequest(locationToDelete, clickedCard)
+  }
+
+  sendDeleteRequest(location, cardElement) {
+    // Get CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+
+    // Create boolean to see if user is logged in
+    const isLoggedIn = document.body.dataset.currentUser === "true"
+    console.log('User logged in:', isLoggedIn)
+    console.log('Sending DELETE request to /locations/' + location.id)
+
+    fetch(`/locations/${location.id}`, {
+      method: "DELETE",
+      headers: {
+        "Accept": "application/json",
+        "X-CSRF-Token": csrfToken
+      }
+    })
+    .then(response => {
+      console.log('Response status:', response.status)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      return response.json()
+    })
+    .then((data) => {
+      console.log('Delete success:', data)
+
+      // Remove the location from local data
+      this.locationsData = this.locationsData.filter(loc => loc.id !== location.id)
+
+      // Update global data if it exists
+      if (window.globalSavedLocations) {
+        window.globalSavedLocations = window.globalSavedLocations.filter(loc => loc.id !== location.id)
+      }
+
+      // Update the weather template data attribute
+      this.updateWeatherTemplateData()
+
+      // Remove the card from DOM
+      cardElement.remove()
+
+      // Update heart buttons for this location across all cards (make them saveable again)
+      this.updateHeartButtonsAfterDelete(location.break, location.region, location.country, location.latitude, location.longitude)
+
+      // If no more saved locations, remove the header
+      const cardsContainer = document.getElementById('break-cards-container')
+      if (cardsContainer && this.locationsData.length === 0) {
+        const header = cardsContainer.querySelector('.saved-locations-header')
+        if (header) {
+          header.remove()
+        }
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error)
+      if (!isLoggedIn) {
+        alert('Need to log-in to delete location. Please try again.')
+      } else {
+        alert('Failed to delete location. Please try again.')
+      }
+    })
+  }
+
+  // Update heart buttons after deletion to make location saveable again
+  updateHeartButtonsAfterDelete(breakName, region, country, latitude, longitude) {
+    const allCards = document.querySelectorAll('.break-card')
+
+    allCards.forEach(card => {
+      const cardBreak = card.querySelector('[data-card="break-name"]')?.textContent
+      const cardRegion = card.querySelector('[data-card="region"]')?.textContent
+      const cardCountry = card.querySelector('[data-card="country"]')?.textContent
+      const cardLat = card.querySelector('[data-card="latitude"]')?.textContent
+      const cardLng = card.querySelector('[data-card="longitude"]')?.textContent
+
+      if (cardBreak === breakName &&
+          cardRegion === region &&
+          cardCountry === country &&
+          parseFloat(cardLat) === parseFloat(latitude) &&
+          parseFloat(cardLng) === parseFloat(longitude)) {
+
+        const heartButton = card.querySelector('.heart-save')
+        if (heartButton) {
+          // Show empty heart and make clickable for unsaved locations
+          const heartIcon = heartButton.querySelector('i')
+          if (heartIcon) {
+            heartIcon.classList.remove('fas', 'fa-heart')
+            heartIcon.classList.add('far', 'fa-heart')
+          }
+          heartButton.style.pointerEvents = 'auto'
+          heartButton.style.opacity = '1'
+          heartButton.setAttribute('title', 'Save location')
+        }
+
+        // Hide delete button for unsaved locations
+        const deleteButton = card.querySelector('.button-remove')
+        if (deleteButton) {
+          deleteButton.style.display = 'none'
+        }
+      }
+    })
   }
 
 }
