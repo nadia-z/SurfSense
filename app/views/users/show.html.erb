@@ -18,9 +18,9 @@
       <%end%>
       <strong class="mt-3">profile picture</strong>
 
-      <form data-controller="" action="<%= user_path(current_user)%>" method="post">
-        <button id="delete-btn"></button>
-        <input type="submit" value="are you sure" class="btn btn-dange d-none" />
+      <form class="pb-3" data-controller="account" action="<%= user_path(current_user)%>" method="post">
+        <button data-account-target="Rem_btn" data-action="click->account#toggle" id="delete-btn" class="btn btn-secondary">remove picture</button>
+        <input data-account-target="Del_btn" type="submit" value="are you sure" class="btn btn-danger d-none" />
       </form>
     </div>
   </div>
