@@ -18,8 +18,9 @@
       <%end%>
       <strong class="mt-3">profile picture</strong>
 
-      <form action="<%= user_path(current_user)%>" method="post">
-        <input type="submit" value="remove_photo" class="btn btn-danger" />
+      <form data-controller="" action="<%= user_path(current_user)%>" method="post">
+        <button id="delete-btn"></button>
+        <input type="submit" value="are you sure" class="btn btn-dange d-none" />
       </form>
     </div>
   </div>
