@@ -93,6 +93,8 @@ export default class extends Controller {
     }
   }
 
+
+
   async fetchWeatherData(lat, lng, breakName) {
     try {
       const params1 = {
