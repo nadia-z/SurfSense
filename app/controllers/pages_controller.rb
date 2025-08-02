@@ -5,6 +5,8 @@ class PagesController < ApplicationController
     file = File.read('app/javascript/data/surf_spots.json')
     locations_data = JSON.parse(file)
 
+    @locations = current_user&.locations&.all || []
+
     # Create nested structure: countries -> regions -> breaks
     @locations_structure = build_locations_structure(locations_data)
 
@@ -12,12 +14,6 @@ class PagesController < ApplicationController
     @countries = @locations_structure["countries"].keys.sort
     @regions = extract_all_regions(@locations_structure).sort
     @breaks = extract_all_breaks(@locations_structure).sort
-
-    if params[:query].present?
-      @locations = Location.search_location(params[:query])
-    else
-      @locations = Location.where(suggested: true)
-    end
   end
 
   private  def build_locations_structure(locations_data)

@@ -1,0 +1,18 @@
+.button-remove {
+  z-index: 200;
+  display: none; /* Hidden by default, shown only for saved locations */
+  font-size: larger;
+  color: rgb(68, 87, 87);
+  padding-right: 0.5rem;
+  z-index: 300;
+  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+  cursor: pointer;
+  transform-origin: center center;
+  border: none;
+  background: none;
+}
+
+.button-remove:hover {
+  transform: rotate(90deg) scale(1.1);
+  color: rgb(220, 53, 69);
+}

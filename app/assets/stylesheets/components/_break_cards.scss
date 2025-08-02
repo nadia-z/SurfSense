@@ -13,7 +13,9 @@
   border-radius: 8px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   min-width: 450px;
+  max-width: fit-content;
   flex: 1;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-2px);
