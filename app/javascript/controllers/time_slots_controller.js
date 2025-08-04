@@ -4,8 +4,6 @@ export default class extends Controller {
   static targets = ["timeSlot"]
 
   connect() {
-    console.log("TimeSlots controller connected")
-    console.log("Element with time-slots controller:", this.element)
     this.currentForecastData = null // Store the current forecast data
 
     // Only set up listeners once
@@ -16,7 +14,6 @@ export default class extends Controller {
   }
 
   disconnect() {
-    console.log("TimeSlots controller disconnected")
     // Clean up event listeners
     if (this.saveHandler) {
       document.removeEventListener("click", this.saveHandler)
@@ -28,13 +25,10 @@ export default class extends Controller {
       document.removeEventListener("saveForecast:clicked", this.saveForecastHandler)
     }
     this.listenersSetup = false
-
   }
 
   selectTimeSlot(event) {
     const clickedSlot = event.currentTarget
-    console.log(`time slot "${event.currentTarget}" selected`)
-    console.log(`time slot "${clickedSlot}" selected`);
     const allSlots = document.querySelectorAll('[data-time-slots-target="timeSlot"]');
 
     allSlots.forEach(slot => {
@@ -63,37 +57,6 @@ export default class extends Controller {
 
     // Debug the tide value specifically
     const tideElement = clickedSlot.querySelector('[data-weather="tide-current"]')
-    console.log("Tide element found:", tideElement)
-    console.log("Tide text content:", tideElement?.textContent)
-    console.log("Tide value in data object:", data.tide)
-
-    // Let's also check for alternative tide selectors
-    const altTideSelectors = [
-      '[data-weather="tide-current"]',
-      '[data-weather="tide"]',
-      '[data-tide]',
-      '.tide',
-      '[data-weather-type="tide"]'
-    ]
-
-    console.log("Checking alternative tide selectors:")
-    altTideSelectors.forEach(selector => {
-      const element = clickedSlot.querySelector(selector)
-      console.log(`${selector}:`, element, element?.textContent)
-    })
-
-    // List all data-weather attributes in this slot
-    const allWeatherElements = clickedSlot.querySelectorAll('[data-weather]')
-    console.log("All data-weather elements in this slot:")
-    allWeatherElements.forEach(el => {
-      console.log(`data-weather="${el.dataset.weather}":`, el.textContent)
-    })
-
-    console.log("Full data object:", data)
-
-    // const swellEl = clickedSlot.querySelector('[data-weather="swell-height"]');
-    // const swellHeight = parseFloat(swellEl?.dataset.swellHeight || "0");
-
     document.dispatchEvent(new CustomEvent("timeSlot:selected", {
       detail: data
     }));
@@ -117,7 +80,6 @@ export default class extends Controller {
     // Create bound handlers to avoid multiple listeners
     this.timeSlotHandler = (event) => {
       this.currentForecastData = event.detail
-      console.log("Forecast data ready for saving:", this.currentForecastData)
     }
 
     // Listen for the custom event to update our stored data (ONLY ONCE)
@@ -125,10 +87,6 @@ export default class extends Controller {
 
     // Listen for custom save forecast events from the SVG button
     this.saveForecastHandler = (event) => {
-      console.log("Custom saveForecast event triggered!", event)
-      console.log("Event detail:", event.detail)
-      console.log("Current forecast data available:", !!this.currentForecastData)
-
       if (!this.currentForecastData) {
         console.warn("No forecast data available. Please select a time slot first.")
         alert("Please select a time slot first to populate forecast data, then try saving again.")
@@ -138,16 +96,10 @@ export default class extends Controller {
       this.saveForecast()
     }
 
-    console.log("Setting up saveForecast:clicked event listener")
     document.addEventListener("saveForecast:clicked", this.saveForecastHandler)
 
     // Create a bound handler to avoid multiple listeners
     this.saveHandler = (event) => {
-      console.log("Click detected on:", event.target)
-      console.log("Target ID:", event.target.id)
-      console.log("Target classes:", event.target.className)
-      console.log("Target tag:", event.target.tagName)
-
       // Check for multiple possible button selectors
       const isSaveButton = event.target.id === 'btn-sav-forecast' ||
                           event.target.id === 'btn-save-forecast' ||
@@ -158,7 +110,6 @@ export default class extends Controller {
                           event.target.closest('[data-action="save-forecast"]')
 
       if (isSaveButton) {
-        console.log("Save forecast button clicked!")
         event.preventDefault()
         event.stopPropagation() // Prevent event bubbling
         this.saveForecast()
@@ -171,26 +122,20 @@ export default class extends Controller {
 
   saveForecast() {
     if (!this.currentForecastData) {
-      console.log("No forecast data to save")
       return
     }
 
     // Prevent multiple rapid saves
     if (this.isSaving) {
-      console.log("Save already in progress, skipping...")
       return
     }
 
     this.isSaving = true
 
-    console.log("Saving forecast with data:", this.currentForecastData)
-    console.log("Tide value being saved:", this.currentForecastData.tide)
-
     // Get location data from the page (using new structure)
     const locationData = this.getCurrentLocationData()
 
     if (!locationData.region || !locationData.country || !locationData.break) {
-      console.error("Missing location data:", locationData)
       this.showSaveError()
       return
     }
@@ -213,12 +158,6 @@ export default class extends Controller {
     formData.append("selected_forecast[tide]", document.querySelector('[data-weather="tide"]')?.textContent || "")
     formData.append("selected_forecast[saved]", true)
 
-    // Debug form data
-    console.log("Form data being sent:")
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`)
-    }
-
     // Get CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
     if (csrfToken) {
@@ -236,17 +175,13 @@ export default class extends Controller {
     .then(response => {
       this.isSaving = false // Reset saving flag
       if (response.ok) {
-        console.log("Forecast saved successfully!")
-        // Optionally show success message or update UI
         this.showSaveSuccess()
       } else {
-        console.error("Error saving forecast:", response.statusText)
         this.showSaveError()
       }
     })
     .catch(error => {
       this.isSaving = false // Reset saving flag
-      console.error("Error saving forecast:", error)
       this.showSaveError()
     })
   }
@@ -347,8 +282,6 @@ export default class extends Controller {
   }
 
   getCurrentLocationData() {
-    console.log("=== DEBUGGING LOCATION DATA EXTRACTION (time_slots_controller) ===")
-
     // PRIMARY METHOD: Get from dropdown button texts (most reliable)
     const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
     const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
@@ -369,7 +302,6 @@ export default class extends Controller {
             country !== 'Country' &&
             region !== 'Region' &&
             breakName !== 'Break') {
-          console.log("✅ SUCCESS: Found location data from dropdown buttons:", { region, country, break: breakName })
           return { region, country, break: breakName }
         }
       }
@@ -391,13 +323,11 @@ export default class extends Controller {
             breakName !== 'Loading...' &&
             region !== '--' &&
             country !== '--') {
-          console.log("✅ SUCCESS: Found location data from break card:", { region, country, break: breakName })
           return { region, country, break: breakName }
         }
       }
     }
 
-    console.error("❌ FAILED: Location data not found in any source")
     return { region: null, country: null, break: null }
   }
 

@@ -64,28 +64,40 @@ puts("Seeding SelectedForecasts...")
 
 SelectedForecast.create!(
   user: user1,
-  location: location1,
-  time_slot: "09:00",
+  time_slot: "9AM",
   saved: true,
-  swellDirection: 180,
+  swellDirection: 'ENE',
   swellHeight: 3,
   swellPeriod: 12.5,
-  waveDirection: 185,
+  waveDirection: 'WSW',
   waveHeight: 2.5,
-  wavePeriod: 8.0
+  wavePeriod: 8.0,
+  wind_speed: 20.50,
+  wind_direction: 'ENE',
+  temperature: 28.5,
+  tide: 'Mid-Low',
+  country: 'Senegal',
+  region: 'All Regions',
+  break: 'Amazing break 2000'
 )
 
 SelectedForecast.create!({
-  user:user1,
-  location: location2,
-  time_slot: "03:00",
-  swellDirection: 40,
-  swellHeight: 1,
-  swellPeriod: 4.5,
-  waveDirection: 28,
-  waveHeight: 1.1399999856948853,
-  wavePeriod: 5.449999809265137,
+  user: user1,
+  time_slot: "6PM",
   saved: true,
+  swellDirection: 'SE',
+  swellHeight: 4,
+  swellPeriod: 20.5,
+  waveDirection: 'NNE',
+  waveHeight: 1.5,
+  wavePeriod: 5.0,
+  wind_speed: 10.50,
+  wind_direction: 'ESE',
+  temperature: 15.5,
+  tide: 'High',
+  country: 'Norway',
+  region: 'All Regions',
+  break: 'Akretorniiz'
 })
 
 puts("Forecasts created succesfully✅")

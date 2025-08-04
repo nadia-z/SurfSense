@@ -7,12 +7,10 @@ export default class extends Controller {
     static targets = ["card"]
 
     connect() {
-      console.log("Forecast controller connected")
       this.currentForecastData = null // Store forecast data for saving
 
       document.addEventListener("timeSlot:selected", (event) => {
         this.currentForecastData = event.detail // Store the data
-        console.log("Forecast data stored:", this.currentForecastData)
         this.showFlowchartWithUpdatedData(event.detail);
       })
     }
@@ -53,8 +51,6 @@ export default class extends Controller {
         const region = regionElement.textContent?.trim()
         const country = countryElement.textContent?.trim()
 
-        console.log('Card data extracted:', { breakName, region, country })
-
         // Update break dropdown if valid data
         if (breakName && breakName !== 'Loading...') {
           const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
@@ -62,7 +58,6 @@ export default class extends Controller {
             const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
             if (breakButton) {
               breakButton.textContent = breakName
-              console.log(`✅ Updated break button text to: ${breakName}`)
             }
           }
         }
@@ -78,7 +73,6 @@ export default class extends Controller {
           const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
           if (regionButton) {
             regionButton.textContent = regionText
-            console.log(`✅ Updated region button text to: ${regionText}`)
           }
         }
 
@@ -89,7 +83,6 @@ export default class extends Controller {
             const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
             if (countryButton) {
               countryButton.textContent = country
-              console.log(`✅ Updated country button text to: ${country}`)
             }
           }
         }
@@ -102,16 +95,12 @@ export default class extends Controller {
       // Find ALL elements with this action and remove the data-action attribute
       const elementToDeactivate = document.querySelector('#card-template')
       elementToDeactivate.removeAttribute('data-action')
-
-      console.log('DONE - Deactivated')
     }
 
     showFlowchartWithUpdatedData(data) {
   // Access all the weather values from the data object
     const time = data.time;
     const swellHeight = data.swellHeight;
-    console.log("data.swellHeight")
-    console.log(data.swellHeight)
     const swellPeriod = data.swellPeriod;
     const swellDirection = data.swellDirection;
     const waveHeight = data.waveHeight;
@@ -132,7 +121,6 @@ export default class extends Controller {
       fetch("/flowchart.svg")
         .then(res => res.text())
         .then(svgText => {
-          console.log("fetching svg")
           const parser = new DOMParser()
           const svgDoc = parser.parseFromString(svgText, "image/svg+xml")
           const parsedSvg = svgDoc.documentElement
@@ -149,8 +137,6 @@ export default class extends Controller {
           let waveGroup = parsedSvg.getElementById("wave-value");
           let windGroup = parsedSvg.getElementById("wind-value");
           let timeGroup = parsedSvg.getElementById("time-value");
-          console.log("timeGroup")
-          console.log(timeGroup)
 
           createDefs(parsedSvg)
           const edges = parsedSvg.querySelectorAll('[id^="e-"]')
@@ -170,13 +156,9 @@ export default class extends Controller {
           const saveBtn = parsedSvg.getElementById('btn-save-forecast')
           if (saveBtn) {
             saveBtn.addEventListener('click', (event) => {
-              console.log('SVG button clicked!', event)
-
               // Call the save method directly on this controller
               this.saveForecast()
             })
-          } else {
-            console.log('Save button not found in SVG')
           }
         })
     }
@@ -248,8 +230,6 @@ export default class extends Controller {
         newText.setAttribute("text-anchor", "middle");
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${swellHeight.toFixed(1)}m ${swellPeriod.toFixed(1)}s ${swellDirection}`;
-        console.log("newText")
-        console.log(newText)
         swellGroup.parentNode.replaceChild(newText, swellGroup)
   }
 
@@ -278,8 +258,6 @@ export default class extends Controller {
         newText.setAttribute("text-anchor", "middle");
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${waveHeight.toFixed(1)}m ${wavePeriod.toFixed(1)}s ${waveDirection}`;
-        console.log("newText")
-        console.log(newText)
         waveGroup.parentNode.replaceChild(newText, waveGroup)
   }
 
@@ -309,8 +287,6 @@ export default class extends Controller {
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         // newText.textContent = `${windSpeed.toFixed(1)}km/h ${windDirection}`;
         newText.textContent = "to be updated";
-        console.log("newText")
-        console.log(newText)
         windGroup.parentNode.replaceChild(newText, windGroup)
   }
 
@@ -339,8 +315,6 @@ export default class extends Controller {
         newText.setAttribute("text-anchor", "middle");
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${time}`;
-        console.log("newText")
-        console.log(newText)
         timeGroup.parentNode.replaceChild(newText, timeGroup)
   }
 
@@ -353,23 +327,10 @@ export default class extends Controller {
 
     // Prevent multiple rapid saves
     if (this.isSaving) {
-      console.log("Save already in progress, skipping...")
       return
     }
 
     this.isSaving = true
-
-    console.log("Saving forecast with data:", this.currentForecastData)
-    console.log("Tide value being saved:", this.currentForecastData.tide)
-    console.log("Tide value type:", typeof this.currentForecastData.tide)
-    console.log("Tide value length:", this.currentForecastData.tide?.length)
-
-    // Let's also try to extract tide data directly at save time as a fallback
-    const currentTideElement = document.querySelector('[data-weather="tide-current"]')
-    console.log("Current tide element at save time:", currentTideElement)
-    if (currentTideElement) {
-      console.log("Current tide text at save time:", currentTideElement.textContent)
-    }
 
     // If tide is empty, try alternative methods to get tide data
     let tideValue = this.currentForecastData.tide || ""
@@ -389,15 +350,13 @@ export default class extends Controller {
         const tideEl = document.querySelector(selector)
         if (tideEl && tideEl.textContent && tideEl.textContent.trim() !== '') {
           tideValue = tideEl.textContent.trim()
-          console.log(`Found tide data using selector ${selector}:`, tideValue)
           break
         }
       }
 
       // If still no tide data, use placeholder
       if (!tideValue || tideValue.length === 0) {
-        tideValue = "N/A" // or "" if you prefer empty
-        console.log("No tide data found, using placeholder:", tideValue)
+        tideValue = "N/A"
       }
     }
 
@@ -428,12 +387,6 @@ export default class extends Controller {
     formData.append("selected_forecast[tide]", tideValue)
     formData.append("selected_forecast[saved]", true)
 
-    // Debug form data
-    console.log("Form data being sent:")
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`)
-    }
-
     // Get CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
     if (csrfToken) {
@@ -451,16 +404,13 @@ export default class extends Controller {
     .then(response => {
       this.isSaving = false // Reset saving flag
       if (response.ok) {
-        console.log("Forecast saved successfully!")
         this.showSaveSuccess()
       } else {
-        console.error("Error saving forecast:", response.statusText)
         this.showSaveError()
       }
     })
     .catch(error => {
       this.isSaving = false // Reset saving flag
-      console.error("Error saving forecast:", error)
       this.showSaveError()
     })
   }
@@ -470,20 +420,17 @@ export default class extends Controller {
     const urlParams = new URLSearchParams(window.location.search)
     let locationId = urlParams.get('location_id')
     if (locationId) {
-      console.log("Using location ID from URL:", locationId)
       return locationId
     }
 
     // Option 2: Get from data attribute on the current forecast data
     locationId = document.querySelector('[data-location-id]')?.dataset.locationId
     if (locationId) {
-      console.log("Using location ID from data attribute:", locationId)
       return locationId
     }
 
     // Option 3: Get from a global variable or session
     if (window.currentLocationId) {
-      console.log("Using location ID from global variable:", window.currentLocationId)
       return window.currentLocationId
     }
 
@@ -497,14 +444,11 @@ export default class extends Controller {
       const latitude = currentBreakCard.querySelector('[data-card="latitude"]')?.textContent
       const longitude = currentBreakCard.querySelector('[data-card="longitude"]')?.textContent
 
-      console.log("Current break card data:", { breakName, region, country, latitude, longitude })
-
       // Try to get saved locations data from save-location controller
       const saveLocationElement = document.querySelector('[data-controller*="save-location"]')
       if (saveLocationElement && saveLocationElement.dataset.saveLocationLocationsValue) {
         try {
           const savedLocations = JSON.parse(saveLocationElement.dataset.saveLocationLocationsValue)
-          console.log("Found saved locations data:", savedLocations)
 
           // Find matching location by break name, region, country, and coordinates
           const matchingLocation = savedLocations.find(loc =>
@@ -516,11 +460,10 @@ export default class extends Controller {
           )
 
           if (matchingLocation && matchingLocation.id) {
-            console.log("Found matching saved location with ID:", matchingLocation.id)
             return matchingLocation.id
           }
         } catch (error) {
-          console.log("Error parsing saved locations JSON:", error)
+          // Silent fallback
         }
       }
     }
@@ -537,7 +480,6 @@ export default class extends Controller {
       const selectElement = document.querySelector(selector)
       if (selectElement && selectElement.value && selectElement.value !== '') {
         locationId = selectElement.value
-        console.log(`Using location ID from dropdown (${selector}):`, locationId)
         return locationId
       }
     }
@@ -547,7 +489,6 @@ export default class extends Controller {
     if (saveLocationElement) {
       locationId = saveLocationElement.dataset.locationId
       if (locationId) {
-        console.log("Using location ID from save-location controller:", locationId)
         return locationId
       }
     }
@@ -559,61 +500,39 @@ export default class extends Controller {
         const locations = JSON.parse(locationsData)
         if (locations && locations.length > 0) {
           locationId = locations[0].id
-          console.warn("FALLBACK: Using first location ID from JSON data:", locationId)
           return locationId
         }
       }
     } catch (error) {
-      console.log("Error parsing locations JSON:", error)
+      // Silent fallback
     }
 
-    console.error("Location ID not found in any source")
     return null
   }
 
   getCurrentLocationData() {
-    console.log("=== DEBUGGING LOCATION DATA EXTRACTION ===")
-
     // PRIMARY METHOD: Get from dropdown button texts (most reliable)
     const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
     const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
     const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
-
-    console.log("Dropdown elements found:", {
-      country: !!countryDropdown,
-      region: !!regionDropdown,
-      break: !!breakDropdown
-    })
 
     if (countryDropdown && regionDropdown && breakDropdown) {
       const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
       const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
       const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
 
-      console.log("Dropdown buttons found:", {
-        country: !!countryButton,
-        region: !!regionButton,
-        break: !!breakButton
-      })
-
       if (countryButton && regionButton && breakButton) {
         const country = countryButton.textContent?.trim()
         const region = regionButton.textContent?.trim()
         const breakName = breakButton.textContent?.trim()
-
-        console.log("Dropdown button texts:", { country, region, breakName })
 
         // Check if all dropdowns have been selected (not showing default text)
         if (country && region && breakName &&
             country !== 'Country' &&
             region !== 'Region' &&
             breakName !== 'Break') {
-          console.log("✅ SUCCESS: Found location data from dropdown buttons:", { region, country, break: breakName })
           return { region, country, break: breakName }
         } else {
-          console.log("❌ Dropdown buttons have default values or are empty")
-          console.log("Checking if we can use break card data when break dropdown is not selected...")
-
           // If country and region are selected but break is still default,
           // try to get break name from a currently displayed break card
           if (country !== 'Country' && region !== 'Region' && breakName === 'Break') {
@@ -621,9 +540,6 @@ export default class extends Controller {
             if (currentBreakCard) {
               const cardBreakName = currentBreakCard.querySelector('[data-card="break-name"]')?.textContent?.trim()
               if (cardBreakName && cardBreakName !== 'Loading...') {
-                console.log("✅ SUCCESS: Using break name from card with dropdown country/region:", {
-                  region, country, break: cardBreakName
-                })
                 return { region, country, break: cardBreakName }
               }
             }
@@ -634,34 +550,21 @@ export default class extends Controller {
 
     // SECONDARY METHOD: Try to get location data from the current break card
     const currentBreakCard = document.querySelector('.break-card')
-    console.log("Break card found:", !!currentBreakCard)
-
     if (currentBreakCard) {
       const breakNameEl = currentBreakCard.querySelector('[data-card="break-name"]')
       const regionEl = currentBreakCard.querySelector('[data-card="region"]')
       const countryEl = currentBreakCard.querySelector('[data-card="country"]')
-
-      console.log("Break card elements found:", {
-        breakName: !!breakNameEl,
-        region: !!regionEl,
-        country: !!countryEl
-      })
 
       if (breakNameEl && regionEl && countryEl) {
         const breakName = breakNameEl.textContent?.trim()
         const region = regionEl.textContent?.trim()
         const country = countryEl.textContent?.trim()
 
-        console.log("Break card data:", { region, country, breakName })
-
         if (breakName && region && country &&
             breakName !== 'Loading...' &&
             region !== '--' &&
             country !== '--') {
-          console.log("✅ SUCCESS: Found location data from break card:", { region, country, break: breakName })
           return { region, country, break: breakName }
-        } else {
-          console.log("❌ Break card has default/loading values")
         }
       }
     }
@@ -671,35 +574,23 @@ export default class extends Controller {
     const countryEl = document.querySelector('[data-location-country]')
     const breakEl = document.querySelector('[data-location-break]')
 
-    console.log("Data attribute elements found:", {
-      region: !!regionEl,
-      country: !!countryEl,
-      break: !!breakEl
-    })
-
     if (regionEl && countryEl && breakEl) {
       const locationData = {
         region: regionEl.dataset.locationRegion,
         country: countryEl.dataset.locationCountry,
         break: breakEl.dataset.locationBreak
       }
-      console.log("✅ SUCCESS: Found location data from data attributes:", locationData)
       return locationData
     }
 
     // FALLBACK METHOD: Try to get from saved locations data
     try {
       const saveLocationElement = document.querySelector('[data-controller*="save-location"]')
-      console.log("Save location element found:", !!saveLocationElement)
-
       if (saveLocationElement && saveLocationElement.dataset.saveLocationLocationsValue) {
         const locations = JSON.parse(saveLocationElement.dataset.saveLocationLocationsValue)
-        console.log("Saved locations data:", locations)
-
         if (locations && locations.length > 0) {
           const firstLocation = locations[0]
           if (firstLocation.region && firstLocation.country && firstLocation.break) {
-            console.log("✅ FALLBACK: Using first location from JSON data:", firstLocation)
             return {
               region: firstLocation.region,
               country: firstLocation.country,
@@ -709,17 +600,9 @@ export default class extends Controller {
         }
       }
     } catch (error) {
-      console.log("Error parsing locations JSON:", error)
+      // Silent fallback
     }
 
-    // DEBUG: List all elements that might contain location data
-    console.log("=== DEBUGGING: Available elements on page ===")
-    console.log("All dropdown elements:", document.querySelectorAll('[data-dropdown-type-value]'))
-    console.log("All break cards:", document.querySelectorAll('.break-card'))
-    console.log("All data-card elements:", document.querySelectorAll('[data-card]'))
-    console.log("All elements with save-location controller:", document.querySelectorAll('[data-controller*="save-location"]'))
-
-    console.error("❌ FAILED: Location data not found in any source")
     return { region: null, country: null, break: null }
   }
 
