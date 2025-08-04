@@ -11,11 +11,9 @@
     console.log("Forecast controller connected");
 
     document.addEventListener("timeSlot:selected", (event) => {
-      const { swellHeight } = event.detail;
-      this.showFlowchartWithUpdatedData(swellHeight);
-    });
-  }
-
+    this.showFlowchartWithUpdatedData(event.detail);
+  });
+}
     selectCard(event) {
       event.preventDefault()
       const selectedCard = this.cardTarget
@@ -53,7 +51,21 @@
       console.log('DONE - Deactivated')
     }
 
-    showFlowchartWithUpdatedData(swellHeight) {
+   showFlowchartWithUpdatedData(data) {
+  // Access all the weather values from the data object
+    const time = data.time;
+    const swellHeight = data.swellHeight;
+    console.log("data.swellHeight")
+    console.log(data.swellHeight)
+    const swellPeriod = data.swellPeriod;
+    const swellDirection = data.swellDirection;
+    const waveHeight = data.waveHeight;
+    const wavePeriod = data.wavePeriod;
+    const waveDirection = data.waveDirection;
+    const windSpeed = data.windSpeed;
+    const windDirection = data.windDirection;
+    const temperature = data.temperature;
+    const tide = data.tide;
 
         const breakCardContainer = document.getElementById("break-cards-container");
         if (breakCardContainer) {
@@ -70,10 +82,18 @@
           const svgDoc = parser.parseFromString(svgText, "image/svg+xml")
           const parsedSvg = svgDoc.documentElement
 
-          const svg = document.querySelector("svg")
+          const oldSvg = document.querySelector("svg#flowchart"); // use an ID or class to target it
+          if (oldSvg) oldSvg.remove();
+
+          parsedSvg.setAttribute("id", "flowchart");
           document.body.appendChild(parsedSvg);
 
-          let swellHeightEl = svg.getElementById("swell-value");
+          let swellGroup = parsedSvg.getElementById("swell-value");
+          let waveGroup = parsedSvg.getElementById("wave-value");
+          let windGroup = parsedSvg.getElementById("wind-value");
+          let timeGroup = parsedSvg.getElementById("time-value");
+          console.log("timeGroup")
+          console.log(timeGroup)
 
           createDefs(parsedSvg)
           const edges = parsedSvg.querySelectorAll('[id^="e-"]')
@@ -83,9 +103,10 @@
           this.showNodesAndEdges(nodes, parsedSvg, [0, 1, 2, 3])
           this.blurNodes(nodes, [4, 8])
           initializeNodeClickListeners(nodes, edges, parsedSvg, { applyBlur, removeBlur })
-          this.updateSwellHeightText(swellHeightEl, swellHeight)
-          console.log("swellHeight is:")
-          console.log(swellHeight)
+          this.updateSwellGroupText(swellGroup, swellHeight, swellPeriod, swellDirection)
+          this.updateWaveGroupText(waveGroup, waveHeight, wavePeriod, waveDirection)
+          this.updateWindGroupText(windGroup, windSpeed, windDirection)
+          this.updateTimeGroupText(timeGroup, time)
         })
     }
 
@@ -129,19 +150,127 @@
         node.style.pointerEvents = "none"
       })
     }
+    // update Group value function needs to be refactored, to stay dry
+    // find swellGroup value
+    updateSwellGroupText(swellGroup, swellHeight, swellPeriod, swellDirection) {
+      if (!swellGroup || swellHeight == null || swellPeriod == null || !swellDirection) return;
 
+      // Find position of original group element
+      let originalX = swellGroup.getAttribute("x");
+      let originalY = swellGroup.getAttribute("y");
 
-    updateSwellHeightText(swellHeightEl, swellHeight) {
-    if (!swellHeightEl || !swellHeight) return;
-    const newText = document.createElementNS("http://www.w3.org/2000/svg", "text")
-    newText.setAttribute("id", "swell-value")
-    newText.setAttribute("x", "110")
-    newText.setAttribute("y", "400")
-    newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.4rem; fill: black;");
-    newText.textContent = `${swellHeight.toFixed(1)} m`;
-    console.log("newText")
-    console.log(newText)
-    swellHeightEl.parentNode.replaceChild(newText, swellHeightEl)
+      if (!originalX || !originalY) {
+        const bbox = swellGroup.getBBox?.();
+        if (bbox) {
+          originalX = bbox.x + bbox.width / 2;
+          originalY = bbox.y + bbox.height / 2  + 5;
+        } else {
+          originalX = 110; // fallback value
+          originalY = 400;
+        }
+      }
+
+        const newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        newText.setAttribute("id", "swell-value");
+        newText.setAttribute("x", originalX);
+        newText.setAttribute("y", originalY);
+        newText.setAttribute("text-anchor", "middle");
+        newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
+        newText.textContent = `${swellHeight.toFixed(1)}m ${swellPeriod.toFixed(1)}s ${swellDirection}`;
+        console.log("newText")
+        console.log(newText)
+        swellGroup.parentNode.replaceChild(newText, swellGroup)
   }
 
+   updateWaveGroupText(waveGroup, waveHeight, wavePeriod, waveDirection) {
+      if (!waveGroup || waveHeight == null || wavePeriod == null || !waveDirection) return;
+
+      // Find position of original group element
+      let originalX = waveGroup.getAttribute("x");
+      let originalY = waveGroup.getAttribute("y");
+
+      if (!originalX || !originalY) {
+        const bbox = waveGroup.getBBox?.();
+        if (bbox) {
+          originalX = bbox.x + bbox.width / 2;
+          originalY = bbox.y + bbox.height / 2 + 5;
+        } else {
+          originalX = 110; // fallback value
+          originalY = 400;
+        }
+      }
+
+        const newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        newText.setAttribute("id", "wave-value");
+        newText.setAttribute("x", originalX);
+        newText.setAttribute("y", originalY);
+        newText.setAttribute("text-anchor", "middle");
+        newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
+        newText.textContent = `${waveHeight.toFixed(1)}m ${wavePeriod.toFixed(1)}s ${waveDirection}`;
+        console.log("newText")
+        console.log(newText)
+        waveGroup.parentNode.replaceChild(newText, waveGroup)
   }
+
+    updateWindGroupText(windGroup, windSpeed, windDirection) {
+      if (!windGroup || windSpeed == null || !windDirection) return;
+
+      // Find position of original group element
+      let originalX = windGroup.getAttribute("x");
+      let originalY = windGroup.getAttribute("y");
+
+      if (!originalX || !originalY) {
+        const bbox = windGroup.getBBox?.();
+        if (bbox) {
+          originalX = bbox.x + bbox.width / 2;
+          originalY = bbox.y + bbox.height / 2 + 5;
+        } else {
+          originalX = 110; // fallback value
+          originalY = 400;
+        }
+      }
+
+        const newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        newText.setAttribute("id", "wind-value");
+        newText.setAttribute("x", originalX);
+        newText.setAttribute("y", originalY);
+        newText.setAttribute("text-anchor", "middle");
+        newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
+        // newText.textContent = `${windSpeed.toFixed(1)}km/h ${windDirection}`;
+        newText.textContent = "to be updated";
+        console.log("newText")
+        console.log(newText)
+        windGroup.parentNode.replaceChild(newText, windGroup)
+  }
+
+     updateTimeGroupText(timeGroup, time) {
+      if (!timeGroup || time == null) return;
+
+      // Find position of original group element
+      let originalX = timeGroup.getAttribute("x");
+      let originalY = timeGroup.getAttribute("y");
+
+      if (!originalX || !originalY) {
+        const bbox = timeGroup.getBBox?.();
+        if (bbox) {
+          originalX = bbox.x + bbox.width / 2;
+          originalY = bbox.y + bbox.height / 2 + 8;
+        } else {
+          originalX = 110; // fallback value
+          originalY = 400;
+        }
+      }
+
+        const newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        newText.setAttribute("id", "time-value");
+        newText.setAttribute("x", originalX);
+        newText.setAttribute("y", originalY);
+        newText.setAttribute("text-anchor", "middle");
+        newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
+        newText.textContent = `${time}`;
+        console.log("newText")
+        console.log(newText)
+        timeGroup.parentNode.replaceChild(newText, timeGroup)
+  }
+
+}
