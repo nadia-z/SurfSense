@@ -265,5 +265,4 @@ export default class extends Controller {
         console.log(newText)
         timeGroup.parentNode.replaceChild(newText, timeGroup)
   }
-
 }
