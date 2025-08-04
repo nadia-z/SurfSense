@@ -93,6 +93,8 @@ export default class extends Controller {
     }
   }
 
+
+
   async fetchWeatherData(lat, lng, breakName) {
     try {
       const params1 = {
@@ -110,11 +112,28 @@ export default class extends Controller {
         "timezone": "auto"
       }
 
+      const params3 = {
+        "latitude": lat,
+        "longitude": lng,
+        "hourly": ["sea_level_height_msl"],
+        "timezone": "auto",
+        "forecast_days": 3
+      }
+
       const urlMarine = "https://marine-api.open-meteo.com/v1/marine"
       const urlWeather = "https://api.open-meteo.com/v1/forecast"
 
       const responses1 = await fetchWeatherApi(urlMarine, params1)
       const responses2 = await fetchWeatherApi(urlWeather, params2)
+
+      // Try to fetch tide data, but continue if it fails
+      let tideResponse = null
+      try {
+        const responses3 = await fetchWeatherApi(urlMarine, params3)
+        tideResponse = responses3[0]
+      } catch (tideError) {
+        console.warn('Failed to fetch tide data:', tideError)
+      }
 
       // Process first location for each model
       const marineResponse = responses1[0]
@@ -129,8 +148,9 @@ export default class extends Controller {
 
       const marineHourly = marineResponse.hourly()
       const weatherHourly = weatherResponse.hourly()
+      const tideHourly = tideResponse ? tideResponse.hourly() : null
 
-      // Create weather data structure, merging both marine and weather hourly data
+      // Create weather data structure, merging marine, weather, and tide data
       const weatherData = {
         location: {
           latitude,
@@ -152,13 +172,71 @@ export default class extends Controller {
           temperature_2m: weatherHourly.variables(0).valuesArray(),
           wind_speed_10m: weatherHourly.variables(1).valuesArray(),
           wind_direction_10m: weatherHourly.variables(2).valuesArray(),
-        },
-      }
+      // Add tide data (hourly intervals) - will be null if tide API failed
+      seaLevelHeight: tideHourly ? tideHourly.variables(0).valuesArray() : null,
+    },
+  }
 
       this.displayWeatherData(weatherData, breakName)
     } catch (error) {
       console.error('Error fetching weather data:', error)
       this.displayWeatherError(breakName)
+    }
+  }
+
+  // Helper function to get current tide level
+  getCurrentTideLevel(seaLevelHeightArray, timeArray) {
+    if (!seaLevelHeightArray || !timeArray) {
+      return null
+    }
+
+    const now = new Date()
+
+    // Find the closest time index to now
+    let currentIndex = 0
+    let minTimeDiff = Math.abs(timeArray[0].getTime() - now.getTime())
+
+    for (let i = 1; i < timeArray.length; i++) {
+      const timeDiff = Math.abs(timeArray[i].getTime() - now.getTime())
+      if (timeDiff < minTimeDiff) {
+        minTimeDiff = timeDiff
+        currentIndex = i
+      }
+    }
+
+    return seaLevelHeightArray[currentIndex]
+  }
+
+  // Helper function to convert tide level to descriptive text
+  getTideText(tideLevel, dailyTideData) {
+    if (!tideLevel || !dailyTideData || dailyTideData.length === 0) {
+      return 'N/A'
+    }
+
+    // Get daily min and max tide values
+    const minTide = Math.min(...dailyTideData)
+    const maxTide = Math.max(...dailyTideData)
+    const tideRange = maxTide - minTide
+
+    // If tidal range is very small (less than 0.1m), just show the level
+    if (tideRange < 0.1) {
+      return `${tideLevel.toFixed(1)}m`
+    }
+
+    // Calculate thresholds for categorization
+    // Low: bottom 5% of range, High: top 5% of range
+    const lowThreshold = minTide + (tideRange * 0.05
+    )
+    const highThreshold = minTide + (tideRange * 0.95)
+
+    if (tideLevel <= lowThreshold) {
+      return 'Low'
+    } else if (tideLevel >= highThreshold) {
+      return 'High'
+    } else if (tideLevel < (minTide + maxTide) / 2) {
+      return 'Mid-Low'
+    } else {
+      return 'Mid-High'
     }
   }
 
@@ -179,6 +257,12 @@ export default class extends Controller {
     const currentTemperature = weatherData.hourly.temperature_2m[currentHour]
     const currentWindSpeed = weatherData.hourly.wind_speed_10m[currentHour]
     const currentWindDirection = weatherData.hourly.wind_direction_10m[currentHour]
+
+    // Get current tide level
+    const currentTideLevel = this.getCurrentTideLevel(weatherData.hourly.seaLevelHeight, weatherData.hourly.time)
+
+    // Get today's tide data for text conversion
+    const todayTideData = weatherData.hourly.seaLevelHeight ? weatherData.hourly.seaLevelHeight.slice(0, 24) : null
 
     // Get today's max wave height
     const todayMaxWave = Math.max(...weatherData.hourly.waveHeight.slice(0, 24))
@@ -228,11 +312,14 @@ export default class extends Controller {
     setText('[data-weather="wind-direction"]', `${getCompassDirection(currentWindDirection)} (${formatValue(currentWindDirection)}°)`);
     setText('[data-weather="wind-speed"]', formatValue(currentWindSpeed));
 
+    // Add tide information
+    setText('[data-weather="tide-current"]', this.getTideText(currentTideLevel, todayTideData));
+
     // hourly forecast
     const forecastTimes = weatherData.hourly.time.map(t => new Date(t))
     const hoursToShow = [6, 9, 12, 15, 18, 21]
     const template = document.getElementById('time-slot-template')
-    const timeSlotsContainer = document.querySelector('.time-slots-container')
+    const timeSlotsContainer = weatherContainer.querySelector('.time-slots-container')
     timeSlotsContainer.innerHTML = ""
 
     hoursToShow.forEach(hour => {
@@ -267,6 +354,13 @@ export default class extends Controller {
         clone.querySelector('[data-weather="temperature"]').textContent = weatherData.hourly.temperature_2m[matchIndex].toFixed(1);
         clone.querySelector('[data-weather="wind-speed"]').textContent = weatherData.hourly.wind_speed_10m[matchIndex].toFixed(1);
         clone.querySelector('[data-weather="wind-direction"]').textContent =  getCompassDirection(weatherData.hourly.wind_direction_10m[matchIndex]);
+
+        // Add tide data for this time slot
+        const tideLevel = weatherData.hourly.seaLevelHeight && weatherData.hourly.seaLevelHeight[matchIndex] !== null
+          ? weatherData.hourly.seaLevelHeight[matchIndex]
+          : null;
+        const tideText = this.getTideText(tideLevel, todayTideData);
+        clone.querySelector('[data-weather="tide-current"]').textContent = tideText;
 
         timeSlotsContainer.appendChild(clone)
       }
