@@ -13,8 +13,85 @@ export default class extends Controller {
     this.weatherTemplate = document.getElementById('weather-template').innerHTML
     this.cardTemplate = document.getElementById('card-template').innerHTML
   }
-// API request snippet from API documentation, add data requests here following documentation
-// in case we want to have more information about the forecast
+
+  // Get saved locations from global window object or weather template
+  getSavedLocations() {
+    // First try global data
+    if (window.savedLocationsData) {
+      return window.savedLocationsData
+    }
+
+    // Fallback to weather template data attribute
+    const weatherTemplate = document.getElementById('weather-template')
+    if (weatherTemplate) {
+      const locationsValue = weatherTemplate.dataset.saveLocationLocationsValue
+      try {
+        return locationsValue ? JSON.parse(locationsValue) : []
+      } catch (e) {
+        console.error('Error parsing saved locations:', e)
+        return []
+      }
+    }
+    return []
+  }
+
+  // Check if a location is already saved
+  isLocationSaved(breakName, region, country, latitude, longitude) {
+    const savedLocations = this.getSavedLocations()
+    if (!savedLocations || savedLocations.length === 0) {
+      return false
+    }
+
+    return savedLocations.some(location =>
+      location.break === breakName &&
+      location.region === region &&
+      location.country === country &&
+      parseFloat(location.latitude) === parseFloat(latitude) &&
+      parseFloat(location.longitude) === parseFloat(longitude)
+    )
+  }
+
+  // Handle heart button visibility based on whether location is saved
+  handleHeartButtonVisibility(weatherContainer, breakName, region, country, latitude, longitude) {
+    const heartButton = weatherContainer.querySelector('.heart-save')
+    // Delete button is now in the card, not the weather container
+    const card = weatherContainer.closest('.break-card')
+    const deleteButton = card ? card.querySelector('.button-remove') : null
+
+    if (this.isLocationSaved(breakName, region, country, latitude, longitude)) {
+      // Show filled heart and make non-clickable for saved locations
+      if (heartButton) {
+        const heartIcon = heartButton.querySelector('i')
+        if (heartIcon) {
+          heartIcon.classList.remove('far', 'fa-heart')
+          heartIcon.classList.add('fas', 'fa-heart')
+        }
+        heartButton.style.pointerEvents = 'none'
+        heartButton.style.opacity = '0.7'
+        heartButton.setAttribute('title', 'Location already saved')
+      }
+      // Show delete button for saved locations
+      if (deleteButton) {
+        deleteButton.style.display = 'inline-block'
+      }
+    } else {
+      // Show empty heart and make clickable for unsaved locations
+      if (heartButton) {
+        const heartIcon = heartButton.querySelector('i')
+        if (heartIcon) {
+          heartIcon.classList.remove('fas', 'fa-solid')
+          heartIcon.classList.add('far', 'fa-heart')
+        }
+        heartButton.style.pointerEvents = 'auto'
+        heartButton.style.opacity = '1'
+        heartButton.setAttribute('title', 'Save location')
+      }
+      // Hide delete button for unsaved locations
+      if (deleteButton) {
+        deleteButton.style.display = 'none'
+      }
+    }
+  }
 
   async fetchWeatherData(lat, lng, breakName) {
     try {
@@ -121,6 +198,16 @@ export default class extends Controller {
     // Use the template instead of inline HTML
     weatherContainer.innerHTML = this.weatherTemplate
 
+    // Get location details from the card
+    const card = weatherContainer.closest('.break-card')
+    const region = card?.querySelector('[data-card="region"]')?.textContent || ''
+    const country = card?.querySelector('[data-card="country"]')?.textContent || ''
+    const latitude = card?.querySelector('[data-card="latitude"]')?.textContent || ''
+    const longitude = card?.querySelector('[data-card="longitude"]')?.textContent || ''
+
+    // Check if location is saved and hide heart button if it is
+    this.handleHeartButtonVisibility(weatherContainer, breakName, region, country, latitude, longitude)
+
     // Populate the data using data attributes, with null checks
     const setText = (selector, value) => {
       const el = weatherContainer.querySelector(selector);
@@ -218,8 +305,23 @@ export default class extends Controller {
     const weatherContainer = card.querySelector('[data-card="weather-container"]')
     weatherContainer.id = `weather-${breakName.replace(/\s+/g, '-')}`
 
+    // Handle delete button visibility based on whether location is saved
+    const deleteButton = card.querySelector('.button-remove')
+    if (deleteButton) {
+      if (this.isLocationSaved(breakName, region, country, breakData.latitude, breakData.longitude)) {
+        deleteButton.style.display = 'inline-block'
+      } else {
+        deleteButton.style.display = 'none'
+      }
+    }
+
     // Fetch weather data for this break
     this.fetchWeatherData(breakData.latitude, breakData.longitude, breakName)
+
+    const saveButton = document.querySelector('.button-container')
+    if (saveButton) {
+      saveButton.style.display = 'block'
+    }
 
     return card
   }

@@ -52,13 +52,15 @@
 
 <!--! Hidden templates for JavaScript to use -->
 <div style="display: none;">
- <div id="weather-template">
-    <%= render 'shared/weather_display',
-      location_data: @location_structure %>
+ <div id="weather-template"
+      data-controller="save-location"
+      data-save-location-locations-value="<%= @locations.to_json %>">
+    <%= render 'shared/weather_display' %>
   </div>
   <div id="card-template"
-       data-controller="forecast"
+       data-controller="forecast save-location"
        data-dropdown-target="card"
+       data-save-location-locations-value="<%= @locations.to_json %>"
        data-action="click->forecast#focusOnCard">
     <%= render 'shared/break_card' %>
   </div>
