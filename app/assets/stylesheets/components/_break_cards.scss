@@ -5,7 +5,6 @@
   flex-direction: row;
   gap: 1.5rem;
   margin-top: 7rem;
-  width: 1200px;
 }
 
 .break-card {
@@ -14,7 +13,9 @@
   border-radius: 8px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   min-width: 450px;
+  max-width: fit-content;
   flex: 1;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-2px);
@@ -63,17 +64,5 @@
         margin-right: 0.25rem;
       }
     }
-  }
-}
-
-@media (max-width: 768px) {
-  .break-cards {
-    flex-direction: column;
-    width: 95%;
-  }
-
-  .break-card {
-    min-width: unset;
-    width: 100%;
   }
 }

@@ -1,5 +1,18 @@
 <%= javascript_importmap_tags %>
 
+<div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
+  <div class="offcanvas-header">
+    <h4 class="offcanvas-title" id="staticBackdropLabel"><strong>SurfSense</strong></h4>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div>
+      <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Amet rerum nesciunt officia nulla, fuga eveniet aliquam quis nisi, natus delectus explicabo assumenda cupiditate ullam dolorem at quaerat quam vel cum?</p>
+    </div>
+  </div>
+</div>
+
+
 <div class="home-container">
   <h3 class="page-title home">A guided surf-forecast for beginner surfer</h3>
   <div class="search-wrapper">
@@ -39,13 +52,15 @@
 
 <!--! Hidden templates for JavaScript to use -->
 <div style="display: none;">
- <div id="weather-template">
-    <%= render 'shared/weather_display',
-      location_data: @location_structure %>
+ <div id="weather-template"
+      data-controller="save-location"
+      data-save-location-locations-value="<%= @locations.to_json %>">
+    <%= render 'shared/weather_display' %>
   </div>
   <div id="card-template"
-       data-controller="forecast"
+       data-controller="forecast save-location"
        data-dropdown-target="card"
+       data-save-location-locations-value="<%= @locations.to_json %>"
        data-action="click->forecast#focusOnCard">
     <%= render 'shared/break_card' %>
   </div>

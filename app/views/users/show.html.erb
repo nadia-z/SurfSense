@@ -1,0 +1,27 @@
+<div class="container rounded bg-light">
+  <div class="row justify-content-center gap-3 p-3">
+    <div class="col-5">
+      <div class=" my-3 border rounded-top" ><strong>first_name: </strong><div class="bg-secondary-subtle rounded-bottom"><%= first_name = @user.first_name ? @user.first_name : "no firstname available"%></div></div>
+      <div class=" my-3 border rounded-top"><strong>last_name: </strong><div class="bg-secondary-subtle rounded-bottom"><%= last_name = @user.last_name ? @user.last_name : "no lastname available"%></div></div>
+      <div class=" my-3 border rounded-top"><strong>email: </strong><div class="bg-secondary-subtle rounded-bottom"><%= @user.email%></div></div>
+      <div class=" my-3 border rounded-top"><strong>password: </strong><div class="bg-secondary-subtle rounded-bottom"><%= "." * 12%></div></div>
+      <%= link_to "edit", edit_user_path, class: "btn btn-primary" %>
+      <%= link_to "back", root_path, class:"btn btn-secondary"%>
+    </div>
+
+
+    <div class="col-5 d-flex flex-column align-items-center justify-content-center border">
+      <%if @user.photo.attached?%>
+        <%= cl_image_tag @user.photo.key, height:150, width:150%>
+      <%else%>
+        <img class="mt-3" src="#" alt="" width="150px" height="150px"/>
+      <%end%>
+      <strong class="mt-3">profile picture</strong>
+
+      <form class="pb-3" data-controller="account" action="<%= user_path(current_user)%>" method="post">
+        <button data-account-target="Rem_btn" data-action="click->account#toggle" id="delete-btn" class="btn btn-secondary">remove picture</button>
+        <input data-account-target="Del_btn" type="submit" value="are you sure" class="btn btn-danger d-none" />
+      </form>
+    </div>
+  </div>
+</div>

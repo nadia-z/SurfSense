@@ -13,33 +13,144 @@ export default class extends Controller {
     this.weatherTemplate = document.getElementById('weather-template').innerHTML
     this.cardTemplate = document.getElementById('card-template').innerHTML
   }
-// API request snippet from API documentation, add data requests here following documentation
-// in case we want to have more information about the forecast
+
+  // Get saved locations from global window object or weather template
+  getSavedLocations() {
+    // First try global data
+    if (window.savedLocationsData) {
+      return window.savedLocationsData
+    }
+
+    // Fallback to weather template data attribute
+    const weatherTemplate = document.getElementById('weather-template')
+    if (weatherTemplate) {
+      const locationsValue = weatherTemplate.dataset.saveLocationLocationsValue
+      try {
+        return locationsValue ? JSON.parse(locationsValue) : []
+      } catch (e) {
+        console.error('Error parsing saved locations:', e)
+        return []
+      }
+    }
+    return []
+  }
+
+  // Check if a location is already saved
+  isLocationSaved(breakName, region, country, latitude, longitude) {
+    const savedLocations = this.getSavedLocations()
+    if (!savedLocations || savedLocations.length === 0) {
+      return false
+    }
+
+    return savedLocations.some(location =>
+      location.break === breakName &&
+      location.region === region &&
+      location.country === country &&
+      parseFloat(location.latitude) === parseFloat(latitude) &&
+      parseFloat(location.longitude) === parseFloat(longitude)
+    )
+  }
+
+  // Handle heart button visibility based on whether location is saved
+  handleHeartButtonVisibility(weatherContainer, breakName, region, country, latitude, longitude) {
+    const heartButton = weatherContainer.querySelector('.heart-save')
+    // Delete button is now in the card, not the weather container
+    const card = weatherContainer.closest('.break-card')
+    const deleteButton = card ? card.querySelector('.button-remove') : null
+
+    if (this.isLocationSaved(breakName, region, country, latitude, longitude)) {
+      // Show filled heart and make non-clickable for saved locations
+      if (heartButton) {
+        const heartIcon = heartButton.querySelector('i')
+        if (heartIcon) {
+          heartIcon.classList.remove('far', 'fa-heart')
+          heartIcon.classList.add('fas', 'fa-heart')
+        }
+        heartButton.style.pointerEvents = 'none'
+        heartButton.style.opacity = '0.7'
+        heartButton.setAttribute('title', 'Location already saved')
+      }
+      // Show delete button for saved locations
+      if (deleteButton) {
+        deleteButton.style.display = 'inline-block'
+      }
+    } else {
+      // Show empty heart and make clickable for unsaved locations
+      if (heartButton) {
+        const heartIcon = heartButton.querySelector('i')
+        if (heartIcon) {
+          heartIcon.classList.remove('fas', 'fa-solid')
+          heartIcon.classList.add('far', 'fa-heart')
+        }
+        heartButton.style.pointerEvents = 'auto'
+        heartButton.style.opacity = '1'
+        heartButton.setAttribute('title', 'Save location')
+      }
+      // Hide delete button for unsaved locations
+      if (deleteButton) {
+        deleteButton.style.display = 'none'
+      }
+    }
+  }
+
+
 
   async fetchWeatherData(lat, lng, breakName) {
     try {
-      const params = {
+      const params1 = {
         "latitude": lat,
         "longitude": lng,
         "hourly": ["wave_height", "swell_wave_height", "swell_wave_direction", "swell_wave_period", "wave_direction", "wave_period"],
         "timezone": "auto",
         "forecast_days": 3
       }
-      const url = "https://marine-api.open-meteo.com/v1/marine"
-      const responses = await fetchWeatherApi(url, params)
 
-      // Process first location
-      const response = responses[0]
+      const params2 = {
+        "latitude": lat,
+        "longitude": lng,
+        "hourly": ["temperature_2m", "wind_speed_10m", "wind_direction_10m"],
+        "timezone": "auto"
+      }
 
-      // Attributes for timezone and location
-      const utcOffsetSeconds = response.utcOffsetSeconds()
-      const timezone = response.timezone()
-      const latitude = response.latitude()
-      const longitude = response.longitude()
+      const params3 = {
+        "latitude": lat,
+        "longitude": lng,
+        "hourly": ["sea_level_height_msl"],
+        "timezone": "auto",
+        "forecast_days": 3
+      }
 
-      const hourly = response.hourly()
+      const urlMarine = "https://marine-api.open-meteo.com/v1/marine"
+      const urlWeather = "https://api.open-meteo.com/v1/forecast"
 
-      // Create weather data structure
+      const responses1 = await fetchWeatherApi(urlMarine, params1)
+      const responses2 = await fetchWeatherApi(urlWeather, params2)
+
+      // Try to fetch tide data, but continue if it fails
+      let tideResponse = null
+      try {
+        const responses3 = await fetchWeatherApi(urlMarine, params3)
+        tideResponse = responses3[0]
+      } catch (tideError) {
+        console.warn('Failed to fetch tide data:', tideError)
+      }
+
+      // Process first location for each model
+      const marineResponse = responses1[0]
+      const weatherResponse = responses2[0]
+
+      // Use marineResponse for marine data, weatherResponse for weather data
+      // Attributes for timezone and location (use marineResponse for consistency)
+      const utcOffsetSeconds = marineResponse.utcOffsetSeconds()
+      const timezone = marineResponse.timezone()
+      const latitude = marineResponse.latitude()
+      const longitude = marineResponse.longitude()
+
+      const marineHourly = marineResponse.hourly()
+      const weatherHourly = weatherResponse.hourly()
+      const tideHourly = tideResponse ? tideResponse.hourly() : null
+
+      // Create weather data structure, merging marine, weather, and tide data
       const weatherData = {
         location: {
           latitude,
@@ -48,22 +159,84 @@ export default class extends Controller {
           utcOffsetSeconds
         },
         hourly: {
-          time: [...Array((Number(hourly.timeEnd()) - Number(hourly.time())) / hourly.interval())].map(
-            (_, i) => new Date((Number(hourly.time()) + i * hourly.interval() + utcOffsetSeconds) * 1000)
+          time: [...Array((Number(marineHourly.timeEnd()) - Number(marineHourly.time())) / marineHourly.interval())].map(
+            (_, i) => new Date((Number(marineHourly.time()) + i * marineHourly.interval() + utcOffsetSeconds) * 1000)
           ),
-          waveHeight: hourly.variables(0).valuesArray(),
-          swellWaveHeight: hourly.variables(1).valuesArray(),
-          swellWaveDirection: hourly.variables(2).valuesArray(),
-          swellWavePeriod: hourly.variables(3).valuesArray(),
-          waveDirection: hourly.variables(4).valuesArray(),
-          wavePeriod: hourly.variables(5).valuesArray(),
-        },
-      }
+          waveHeight: marineHourly.variables(0).valuesArray(),
+          swellWaveHeight: marineHourly.variables(1).valuesArray(),
+          swellWaveDirection: marineHourly.variables(2).valuesArray(),
+          swellWavePeriod: marineHourly.variables(3).valuesArray(),
+          waveDirection: marineHourly.variables(4).valuesArray(),
+          wavePeriod: marineHourly.variables(5).valuesArray(),
+          // Add weather model data
+          temperature_2m: weatherHourly.variables(0).valuesArray(),
+          wind_speed_10m: weatherHourly.variables(1).valuesArray(),
+          wind_direction_10m: weatherHourly.variables(2).valuesArray(),
+      // Add tide data (hourly intervals) - will be null if tide API failed
+      seaLevelHeight: tideHourly ? tideHourly.variables(0).valuesArray() : null,
+    },
+  }
 
       this.displayWeatherData(weatherData, breakName)
     } catch (error) {
       console.error('Error fetching weather data:', error)
       this.displayWeatherError(breakName)
+    }
+  }
+
+  // Helper function to get current tide level
+  getCurrentTideLevel(seaLevelHeightArray, timeArray) {
+    if (!seaLevelHeightArray || !timeArray) {
+      return null
+    }
+
+    const now = new Date()
+
+    // Find the closest time index to now
+    let currentIndex = 0
+    let minTimeDiff = Math.abs(timeArray[0].getTime() - now.getTime())
+
+    for (let i = 1; i < timeArray.length; i++) {
+      const timeDiff = Math.abs(timeArray[i].getTime() - now.getTime())
+      if (timeDiff < minTimeDiff) {
+        minTimeDiff = timeDiff
+        currentIndex = i
+      }
+    }
+
+    return seaLevelHeightArray[currentIndex]
+  }
+
+  // Helper function to convert tide level to descriptive text
+  getTideText(tideLevel, dailyTideData) {
+    if (!tideLevel || !dailyTideData || dailyTideData.length === 0) {
+      return 'N/A'
+    }
+
+    // Get daily min and max tide values
+    const minTide = Math.min(...dailyTideData)
+    const maxTide = Math.max(...dailyTideData)
+    const tideRange = maxTide - minTide
+
+    // If tidal range is very small (less than 0.1m), just show the level
+    if (tideRange < 0.1) {
+      return `${tideLevel.toFixed(1)}m`
+    }
+
+    // Calculate thresholds for categorization
+    // Low: bottom 5% of range, High: top 5% of range
+    const lowThreshold = minTide + (tideRange * 0.05
+    )
+    const highThreshold = minTide + (tideRange * 0.95)
+
+    if (tideLevel <= lowThreshold) {
+      return 'Low'
+    } else if (tideLevel >= highThreshold) {
+      return 'High'
+    } else if (tideLevel < (minTide + maxTide) / 2) {
+      return 'Mid-Low'
+    } else {
+      return 'Mid-High'
     }
   }
 
@@ -80,6 +253,16 @@ export default class extends Controller {
     const currentWavePeriod = weatherData.hourly.wavePeriod[currentHour]
     const currentSwellDirection = weatherData.hourly.swellWaveDirection[currentHour]
     const currentSwellPeriod = weatherData.hourly.swellWavePeriod[currentHour]
+
+    const currentTemperature = weatherData.hourly.temperature_2m[currentHour]
+    const currentWindSpeed = weatherData.hourly.wind_speed_10m[currentHour]
+    const currentWindDirection = weatherData.hourly.wind_direction_10m[currentHour]
+
+    // Get current tide level
+    const currentTideLevel = this.getCurrentTideLevel(weatherData.hourly.seaLevelHeight, weatherData.hourly.time)
+
+    // Get today's tide data for text conversion
+    const todayTideData = weatherData.hourly.seaLevelHeight ? weatherData.hourly.seaLevelHeight.slice(0, 24) : null
 
     // Get today's max wave height
     const todayMaxWave = Math.max(...weatherData.hourly.waveHeight.slice(0, 24))
@@ -99,23 +282,44 @@ export default class extends Controller {
     // Use the template instead of inline HTML
     weatherContainer.innerHTML = this.weatherTemplate
 
-    // Populate the data using data attributes
-    weatherContainer.querySelector('[data-weather="wave-height"]').textContent = formatValue(currentWaveHeight)
-    weatherContainer.querySelector('[data-weather="wave-direction"]').textContent = `${getCompassDirection(currentWaveDirection)} (${formatValue(currentWaveDirection)}°)`
-    weatherContainer.querySelector('[data-weather="wave-period"]').textContent = formatValue(currentWavePeriod)
-    weatherContainer.querySelector('[data-weather="max-wave"]').textContent = formatValue(todayMaxWave)
-    weatherContainer.querySelector('[data-weather="swell-height"]').textContent = formatValue(currentSwellHeight)
-    weatherContainer.querySelector('[data-weather="swell-direction"]').textContent = `${getCompassDirection(currentSwellDirection)} (${formatValue(currentSwellDirection)}°)`
-    weatherContainer.querySelector('[data-weather="swell-period"]').textContent = formatValue(currentSwellPeriod)
-    weatherContainer.querySelector('[data-weather="max-swell"]').textContent = formatValue(todayMaxSwell)
-    weatherContainer.querySelector('[data-weather="timestamp"]').textContent = now.toLocaleTimeString()
-    weatherContainer.querySelector('[data-weather="timezone"]').textContent = weatherData.location.timezone
+    // Get location details from the card
+    const card = weatherContainer.closest('.break-card')
+    const region = card?.querySelector('[data-card="region"]')?.textContent || ''
+    const country = card?.querySelector('[data-card="country"]')?.textContent || ''
+    const latitude = card?.querySelector('[data-card="latitude"]')?.textContent || ''
+    const longitude = card?.querySelector('[data-card="longitude"]')?.textContent || ''
+
+    // Check if location is saved and hide heart button if it is
+    this.handleHeartButtonVisibility(weatherContainer, breakName, region, country, latitude, longitude)
+
+    // Populate the data using data attributes, with null checks
+    const setText = (selector, value) => {
+      const el = weatherContainer.querySelector(selector);
+      if (el) el.textContent = value;
+    };
+
+    setText('[data-weather="wave-height"]', formatValue(currentWaveHeight));
+    setText('[data-weather="wave-direction"]', `${getCompassDirection(currentWaveDirection)} (${formatValue(currentWaveDirection)}°)`);
+    setText('[data-weather="wave-period"]', formatValue(currentWavePeriod));
+    setText('[data-weather="max-wave"]', formatValue(todayMaxWave));
+    setText('[data-weather="swell-height"]', formatValue(currentSwellHeight));
+    setText('[data-weather="swell-direction"]', `${getCompassDirection(currentSwellDirection)} (${formatValue(currentSwellDirection)}°)`);
+    setText('[data-weather="swell-period"]', formatValue(currentSwellPeriod));
+    setText('[data-weather="max-swell"]', formatValue(todayMaxSwell));
+    setText('[data-weather="timestamp"]', now.toLocaleTimeString());
+    setText('[data-weather="timezone"]', weatherData.location.timezone);
+    setText('[data-weather="temperature"]', formatValue(currentTemperature));
+    setText('[data-weather="wind-direction"]', `${getCompassDirection(currentWindDirection)} (${formatValue(currentWindDirection)}°)`);
+    setText('[data-weather="wind-speed"]', formatValue(currentWindSpeed));
+
+    // Add tide information
+    setText('[data-weather="tide-current"]', this.getTideText(currentTideLevel, todayTideData));
 
     // hourly forecast
     const forecastTimes = weatherData.hourly.time.map(t => new Date(t))
     const hoursToShow = [6, 9, 12, 15, 18, 21]
     const template = document.getElementById('time-slot-template')
-    const timeSlotsContainer = document.querySelector('.time-slots-container')
+    const timeSlotsContainer = weatherContainer.querySelector('.time-slots-container')
     timeSlotsContainer.innerHTML = ""
 
     hoursToShow.forEach(hour => {
@@ -147,10 +351,33 @@ export default class extends Controller {
         clone.querySelector('[data-weather="wave-period"]').textContent = weatherData.hourly.wavePeriod[matchIndex].toFixed(1);
         clone.querySelector('[data-weather="wave-direction"]').textContent = getCompassDirection(weatherData.hourly.waveDirection[matchIndex]);
 
+        clone.querySelector('[data-weather="temperature"]').textContent = weatherData.hourly.temperature_2m[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="wind-speed"]').textContent = weatherData.hourly.wind_speed_10m[matchIndex].toFixed(1);
+        clone.querySelector('[data-weather="wind-direction"]').textContent =  getCompassDirection(weatherData.hourly.wind_direction_10m[matchIndex]);
+
+        // Add tide data for this time slot
+        const tideLevel = weatherData.hourly.seaLevelHeight && weatherData.hourly.seaLevelHeight[matchIndex] !== null
+          ? weatherData.hourly.seaLevelHeight[matchIndex]
+          : null;
+        const tideText = this.getTideText(tideLevel, todayTideData);
+        clone.querySelector('[data-weather="tide-current"]').textContent = tideText;
+
         timeSlotsContainer.appendChild(clone)
       }
     })
   }
+
+  displayWeatherError(breakName) {
+    const weatherContainer = document.getElementById(`weather-${breakName.replace(/\s+/g, '-')}`)
+    if (!weatherContainer) return
+
+    weatherContainer.innerHTML = `
+      <div class="alert alert-warning py-2" role="alert">
+        <small>Unable to load weather data</small>
+      </div>
+    `
+  }
+
 
   createBreakCard(breakName, region, country, breakData) {
     const card = document.createElement('div')
@@ -172,45 +399,57 @@ export default class extends Controller {
     const weatherContainer = card.querySelector('[data-card="weather-container"]')
     weatherContainer.id = `weather-${breakName.replace(/\s+/g, '-')}`
 
+    // Handle delete button visibility based on whether location is saved
+    const deleteButton = card.querySelector('.button-remove')
+    if (deleteButton) {
+      if (this.isLocationSaved(breakName, region, country, breakData.latitude, breakData.longitude)) {
+        deleteButton.style.display = 'inline-block'
+      } else {
+        deleteButton.style.display = 'none'
+      }
+    }
+
     // Fetch weather data for this break
     this.fetchWeatherData(breakData.latitude, breakData.longitude, breakName)
+
+    const saveButton = document.querySelector('.button-container')
+    if (saveButton) {
+      saveButton.style.display = 'block'
+    }
 
     return card
   }
 
-  displayWeatherError(breakName) {
-    const weatherContainer = document.getElementById(`weather-${breakName.replace(/\s+/g, '-')}`)
-    if (!weatherContainer) return
 
-    weatherContainer.innerHTML = `
-      <div class="alert alert-warning py-2" role="alert">
-        <small>Unable to load weather data</small>
-      </div>
-    `
-  }
 
-  selectItem(event) {
-    event.preventDefault()
-    const selectedText = event.target.textContent.trim()
-    this.buttonTarget.textContent = selectedText
+  populateBreaksForCountry(selectedCountry) {
+    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
+    if (!breakDropdown) return
 
-    // Check if locations data is available
-    if (!this.locationsData || !this.locationsData.countries) {
-      console.error("Locations data not available:", this.locationsData)
-      return
-    }
+    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
 
-    // Handle cascading based on dropdown type
-    if (this.dropdownType === "country") {
-      this.populateRegions(selectedText)
-      this.clearBreaks()
-    } else if (this.dropdownType === "region") {
-      const selectedCountry = this.getSelectedCountry()
-      this.populateBreaks(selectedCountry, selectedText)
-    } else if (this.dropdownType === "break") {
-      const selectedCountry = this.getSelectedCountry()
-      const selectedRegion = this.getSelectedRegion()
-      this.displaySingleBreakCard(selectedCountry, selectedRegion, selectedText)
+    // Get all breaks for all regions in the country
+    const allBreaks = []
+    const countryData = this.locationsData.countries[selectedCountry] || {}
+
+    Object.entries(countryData).forEach(([region, regionData]) => {
+      Object.entries(regionData).forEach(([breakName, breakData]) => {
+        allBreaks.push({ name: breakName, region: region, data: breakData })
+      })
+    })
+
+    if (allBreaks.length > 0) {
+      breakMenu.innerHTML = allBreaks.map(breakItem =>
+        `<li><a class="dropdown-item"
+                href="#"
+                data-value="${breakItem.name}"
+                data-action="click->dropdown#selectItem">${breakItem.name}</a></li>`
+      ).join('')
+
+      // Display all breaks as cards
+      this.displayAllBreakCards(selectedCountry, allBreaks)
+    } else {
+      breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">No breaks available</span></li>'
     }
   }
 
@@ -285,6 +524,57 @@ export default class extends Controller {
     }
   }
 
+
+
+
+  clearBreaks() {
+    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
+    if (!breakDropdown) return
+
+    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
+    const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
+
+    breakButton.textContent = "Break"
+    breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">Select a region first</span></li>'
+
+    // Clear cards when changing country
+    this.clearBreakCards()
+  }
+
+  clearBreakCards() {
+    const cardsContainer = document.getElementById('break-cards-container')
+    if (cardsContainer) {
+      cardsContainer.innerHTML = ''
+    }
+  }
+
+
+
+  getSelectedCountry() {
+    const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
+    if (!countryDropdown) return null
+
+    const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
+    return countryButton ? countryButton.textContent.trim() : null
+  }
+
+  getSelectedRegion() {
+    const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
+    if (!regionDropdown) return null
+
+    const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
+    const regionText = regionButton ? regionButton.textContent.trim() : null
+
+    // Handle "All Regions" case
+    if (regionText === "All Regions" || regionText === "Region") {
+      return null
+    }
+
+    return regionText
+  }
+
+
+
   displayBreakCards(selectedCountry, selectedRegion, breaks) {
     // Get or create cards container
     let cardsContainer = document.getElementById('break-cards-container')
@@ -309,132 +599,6 @@ export default class extends Controller {
       const card = this.createBreakCard(breakName, selectedRegion, selectedCountry, breakData)
       cardsContainer.appendChild(card)
     })
-  }
-
-  createBreakCard(breakName, region, country, breakData) {
-    const card = document.createElement('div')
-    card.className = 'break-card card mb-3'
-    card.dataset.lat = breakData.latitude
-    card.dataset.lng = breakData.longitude
-
-    // Use the template instead of inline HTML
-    card.innerHTML = this.cardTemplate
-
-    // Populate the card data using data attributes
-    card.querySelector('[data-card="break-name"]').textContent = breakName
-    card.querySelector('[data-card="region"]').textContent = region
-    card.querySelector('[data-card="country"]').textContent = country
-    card.querySelector('[data-card="latitude"]').textContent = breakData.latitude
-    card.querySelector('[data-card="longitude"]').textContent = breakData.longitude
-
-    // Set the weather container ID
-    const weatherContainer = card.querySelector('[data-card="weather-container"]')
-    weatherContainer.id = `weather-${breakName.replace(/\s+/g, '-')}`
-
-    // Fetch weather data for this break
-    this.fetchWeatherData(breakData.latitude, breakData.longitude, breakName)
-
-    return card
-  }
-
-  populateBreaksForCountry(selectedCountry) {
-    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
-    if (!breakDropdown) return
-
-    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
-
-    // Get all breaks for all regions in the country
-    const allBreaks = []
-    const countryData = this.locationsData.countries[selectedCountry] || {}
-
-    Object.entries(countryData).forEach(([region, regionData]) => {
-      Object.entries(regionData).forEach(([breakName, breakData]) => {
-        allBreaks.push({ name: breakName, region: region, data: breakData })
-      })
-    })
-
-    if (allBreaks.length > 0) {
-      breakMenu.innerHTML = allBreaks.map(breakItem =>
-        `<li><a class="dropdown-item"
-                href="#"
-                data-value="${breakItem.name}"
-                data-action="click->dropdown#selectItem">${breakItem.name}</a></li>`
-      ).join('')
-
-      // Display all breaks as cards
-      this.displayAllBreakCards(selectedCountry, allBreaks)
-    } else {
-      breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">No breaks available</span></li>'
-    }
-  }
-
-  displayAllBreakCards(selectedCountry, allBreaks) {
-    // Get or create cards container
-    let cardsContainer = document.getElementById('break-cards-container')
-    if (!cardsContainer) {
-      cardsContainer = document.createElement('div')
-      cardsContainer.id = 'break-cards-container'
-      cardsContainer.className = 'break-cards'
-
-      // Insert after search wrapper
-      const searchWrapper = document.querySelector('.search-wrapper')
-      if (searchWrapper) {
-        searchWrapper.insertAdjacentElement('afterend', cardsContainer)
-      }
-    }
-
-    // Clear existing cards
-    cardsContainer.innerHTML = ''
-
-    // Create cards for each break
-    allBreaks.forEach(breakItem => {
-      const card = this.createBreakCard(breakItem.name, breakItem.region, selectedCountry, breakItem.data)
-      cardsContainer.appendChild(card)
-    })
-  }
-
-  clearBreaks() {
-    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
-    if (!breakDropdown) return
-
-    const breakMenu = breakDropdown.querySelector('[data-dropdown-target="menu"]')
-    const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
-
-    breakButton.textContent = "Break"
-    breakMenu.innerHTML = '<li><span class="dropdown-item-text text-muted">Select a region first</span></li>'
-
-    // Clear cards when changing country
-    this.clearBreakCards()
-  }
-
-  clearBreakCards() {
-    const cardsContainer = document.getElementById('break-cards-container')
-    if (cardsContainer) {
-      cardsContainer.innerHTML = ''
-    }
-  }
-
-  getSelectedCountry() {
-    const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
-    if (!countryDropdown) return null
-
-    const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
-    return countryButton ? countryButton.textContent.trim() : null
-  }
-
-  getSelectedRegion() {
-    const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
-    if (!regionDropdown) return null
-
-    const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
-    const regionText = regionButton ? regionButton.textContent.trim() : null
-
-    // Handle "All Regions" case
-    if (regionText === "All Regions" || regionText === "Region") {
-      return null
-    }
-
-    return regionText
   }
 
   displaySingleBreakCard(selectedCountry, selectedRegion, selectedBreak) {
@@ -479,6 +643,58 @@ export default class extends Controller {
       cardsContainer.appendChild(card)
     } else {
       console.error(`Break "${selectedBreak}" not found in ${selectedCountry}`)
+    }
+  }
+
+  displayAllBreakCards(selectedCountry, allBreaks) {
+    // Get or create cards container
+    let cardsContainer = document.getElementById('break-cards-container')
+    if (!cardsContainer) {
+      cardsContainer = document.createElement('div')
+      cardsContainer.id = 'break-cards-container'
+      cardsContainer.className = 'break-cards'
+
+      // Insert after search wrapper
+      const searchWrapper = document.querySelector('.search-wrapper')
+      if (searchWrapper) {
+        searchWrapper.insertAdjacentElement('afterend', cardsContainer)
+      }
+    }
+
+    // Clear existing cards
+    cardsContainer.innerHTML = ''
+
+    // Create cards for each break
+    allBreaks.forEach(breakItem => {
+      const card = this.createBreakCard(breakItem.name, breakItem.region, selectedCountry, breakItem.data)
+      cardsContainer.appendChild(card)
+    })
+  }
+
+
+
+  selectItem(event) {
+    event.preventDefault()
+    const selectedText = event.target.textContent.trim()
+    this.buttonTarget.textContent = selectedText
+
+    // Check if locations data is available
+    if (!this.locationsData || !this.locationsData.countries) {
+      console.error("Locations data not available:", this.locationsData)
+      return
+    }
+
+    // Handle cascading based on dropdown type
+    if (this.dropdownType === "country") {
+      this.populateRegions(selectedText)
+      this.clearBreaks()
+    } else if (this.dropdownType === "region") {
+      const selectedCountry = this.getSelectedCountry()
+      this.populateBreaks(selectedCountry, selectedText)
+    } else if (this.dropdownType === "break") {
+      const selectedCountry = this.getSelectedCountry()
+      const selectedRegion = this.getSelectedRegion()
+      this.displaySingleBreakCard(selectedCountry, selectedRegion, selectedText)
     }
   }
 }

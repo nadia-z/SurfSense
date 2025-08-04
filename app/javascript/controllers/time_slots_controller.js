@@ -1,5 +1,4 @@
 import { Controller } from "@hotwired/stimulus"
-import * as d3 from "d3"
 
 export default class extends Controller {
   static targets = ["timeSlot"]
@@ -10,8 +9,19 @@ export default class extends Controller {
 
   selectTimeSlot(event) {
     const clickedSlot = event.currentTarget
-
+    console.log(`time slot "${event.currentTarget}" selected`)
     console.log(`time slot "${clickedSlot}" selected`);
+    const allSlots = document.querySelectorAll('[data-time-slots-target="timeSlot"]');
+
+    allSlots.forEach(slot => {
+      if (slot === clickedSlot) {
+        slot.style.display = "flex";
+        slot.style.flex = "none"; // or ""
+      } else {
+        slot.style.display = "none";
+      }
+    });
+
 
     const data = {
       time: clickedSlot.querySelector('[data-weather="time"]')?.textContent || "",
