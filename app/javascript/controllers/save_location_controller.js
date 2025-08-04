@@ -176,14 +176,8 @@ export default class extends Controller {
   }
 
   saveLocation(event) {
-    console.log('saveLocation method triggered')
-    console.log('Event type:', event.type)
-    console.log('Event target:', event.target)
-
     event.preventDefault()
     event.stopPropagation()
-
-    console.log('Saving location...')
 
     // Find the card that contains the clicked button
     const clickedCard = event.target.closest('.break-card')
@@ -198,14 +192,6 @@ export default class extends Controller {
     const nameElement = clickedCard.querySelector('[data-card="break-name"]')
     const regionElement = clickedCard.querySelector('[data-card="region"]')
     const countryElement = clickedCard.querySelector('[data-card="country"]')
-
-    console.log('Data card elements found:', {
-      latitude: latElement,
-      longitude: longElement,
-      breakName: nameElement,
-      region: regionElement,
-      country: countryElement
-    })
 
     if (!latElement || !longElement || !nameElement || !regionElement || !countryElement) {
       alert('Error: Could not find location data in this card. Please select a location first.')

@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   </head>
 
-  <body>
+  <body data-user-id="<%= current_user&.id %>">
 
     <%= render "shared/flashes"%>
     <%= render "shared/navbar"%>
