@@ -1,39 +1,35 @@
-  import { Controller } from "@hotwired/stimulus"
-  import { createDefs, applyBlur, removeBlur, addPaddingRect } from "../flowchart_effects"
-  import { initializeNodeClickListeners } from "../flowchart_interactions"
-  import { findAnswerToSwellHeight, updateSwellHeightAnswer } from "../swell_height_answers";
-
-  // Connects to data-controller="forecast"
-  export default class extends Controller {
+import { Controller } from "@hotwired/stimulus"
+import { createDefs, applyBlur, removeBlur, addPaddingRect } from "../flowchart_effects"
+import { initializeNodeClickListeners } from "../flowchart_interactions"
+import { findAnswerToSwellHeight, updateSwellHeightAnswer } from "../swell_height_answers";
+// Connects to data-controller="forecast"
+export default class extends Controller {
     static targets = ["card"]
 
+    connect() {
+      document.addEventListener("timeSlot:selected", (event) => {
+      this.showFlowchartWithUpdatedData(event.detail);
+      })
+    }
 
-  connect() {
-
-  }
-
-    document.addEventListener("timeSlot:selected", (event) => {
-    this.showFlowchartWithUpdatedData(event.detail);
-  });
-}
     selectCard(event) {
       event.preventDefault()
       const selectedCard = this.cardTarget
       // Placeholder for logic
     }
 
-  toggleLongForecastInfo(event) {
-    const forecastContainer = document.getElementById("forecast-container")
-    forecastContainer.style.display = "grid"
+    toggleLongForecastInfo(event) {
+      const forecastContainer = document.getElementById("forecast-container")
+      forecastContainer.style.display = "grid"
 
-    const currentForecastContainer = document.querySelector('.row')
-    currentForecastContainer.style.display = 'none'
-  }
+      const currentForecastContainer = document.querySelector('.row')
+      currentForecastContainer.style.display = 'none'
+    }
 
-  focusOnCard(event) {
-    const cardsContainer = document.getElementById("break-cards-container")
-    cardsContainer.innerHTML = ""
-    cardsContainer.insertBefore(event.currentTarget.parentElement, null)
+    focusOnCard(event) {
+      const cardsContainer = document.getElementById("break-cards-container")
+      cardsContainer.innerHTML = ""
+      cardsContainer.insertBefore(event.currentTarget.parentElement, null)
       this.toggleLongForecastInfo(event)
       this.deactivateClickFunctionalities(event)
     }
