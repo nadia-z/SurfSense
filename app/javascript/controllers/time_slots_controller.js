@@ -186,18 +186,20 @@ export default class extends Controller {
     console.log("Saving forecast with data:", this.currentForecastData)
     console.log("Tide value being saved:", this.currentForecastData.tide)
 
-    // Get location ID from the page/session
-    const locationId = this.getCurrentLocationId()
+    // Get location data from the page (using new structure)
+    const locationData = this.getCurrentLocationData()
 
-    if (!locationId) {
-      console.error("Missing location ID")
+    if (!locationData.region || !locationData.country || !locationData.break) {
+      console.error("Missing location data:", locationData)
       this.showSaveError()
       return
     }
 
     // Create form data with correct column names (user_id is set by current_user in controller)
     const formData = new FormData()
-    formData.append("selected_forecast[location_id]", locationId)
+    formData.append("selected_forecast[region]", locationData.region)
+    formData.append("selected_forecast[country]", locationData.country)
+    formData.append("selected_forecast[break]", locationData.break)
     formData.append("selected_forecast[time_slot]", this.currentForecastData.time)
     formData.append("selected_forecast[swellHeight]", this.currentForecastData.swellHeight)
     formData.append("selected_forecast[swellPeriod]", this.currentForecastData.swellPeriod)
@@ -342,6 +344,61 @@ export default class extends Controller {
         saveBtn.style.backgroundColor = ""
       }, 2000)
     }
+  }
+
+  getCurrentLocationData() {
+    console.log("=== DEBUGGING LOCATION DATA EXTRACTION (time_slots_controller) ===")
+
+    // PRIMARY METHOD: Get from dropdown button texts (most reliable)
+    const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
+    const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
+    const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
+
+    if (countryDropdown && regionDropdown && breakDropdown) {
+      const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
+      const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
+      const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
+
+      if (countryButton && regionButton && breakButton) {
+        const country = countryButton.textContent?.trim()
+        const region = regionButton.textContent?.trim()
+        const breakName = breakButton.textContent?.trim()
+
+        // Check if all dropdowns have been selected (not showing default text)
+        if (country && region && breakName &&
+            country !== 'Country' &&
+            region !== 'Region' &&
+            breakName !== 'Break') {
+          console.log("✅ SUCCESS: Found location data from dropdown buttons:", { region, country, break: breakName })
+          return { region, country, break: breakName }
+        }
+      }
+    }
+
+    // SECONDARY METHOD: Try to get location data from the current break card
+    const currentBreakCard = document.querySelector('.break-card')
+    if (currentBreakCard) {
+      const breakNameEl = currentBreakCard.querySelector('[data-card="break-name"]')
+      const regionEl = currentBreakCard.querySelector('[data-card="region"]')
+      const countryEl = currentBreakCard.querySelector('[data-card="country"]')
+
+      if (breakNameEl && regionEl && countryEl) {
+        const breakName = breakNameEl.textContent?.trim()
+        const region = regionEl.textContent?.trim()
+        const country = countryEl.textContent?.trim()
+
+        if (breakName && region && country &&
+            breakName !== 'Loading...' &&
+            region !== '--' &&
+            country !== '--') {
+          console.log("✅ SUCCESS: Found location data from break card:", { region, country, break: breakName })
+          return { region, country, break: breakName }
+        }
+      }
+    }
+
+    console.error("❌ FAILED: Location data not found in any source")
+    return { region: null, country: null, break: null }
   }
 
 }

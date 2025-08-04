@@ -32,8 +32,18 @@ class LocationsController < ApplicationController
 
     respond_to do |format|
       begin
-        # First delete any associated selected_forecast
-        @location.selected_forecast&.destroy
+        # First delete any associated selected_forecasts by matching location data
+        # Since we removed location_id, we need to find forecasts by region/country/break
+        selected_forecasts = current_user.selected_forecasts.where(
+          region: @location.region,
+          country: @location.country,
+          break: @location.break
+        )
+
+        if selected_forecasts.any?
+          selected_forecasts.destroy_all
+          Rails.logger.info "Deleted #{selected_forecasts.count} associated selected forecasts for location #{@location.id}"
+        end
 
         # Then delete the location
         if @location.destroy

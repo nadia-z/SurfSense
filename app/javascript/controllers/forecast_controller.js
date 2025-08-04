@@ -43,19 +43,53 @@ export default class extends Controller {
     }
 
     updateBreakButtonFromCard(cardElement) {
-      // Get the break name from the clicked card
+      // Get all location data from the clicked card
       const breakNameElement = cardElement.querySelector('[data-card="break-name"]')
-      if (breakNameElement) {
-        const breakName = breakNameElement.textContent?.trim()
+      const regionElement = cardElement.querySelector('[data-card="region"]')
+      const countryElement = cardElement.querySelector('[data-card="country"]')
 
+      if (breakNameElement && regionElement && countryElement) {
+        const breakName = breakNameElement.textContent?.trim()
+        const region = regionElement.textContent?.trim()
+        const country = countryElement.textContent?.trim()
+
+        console.log('Card data extracted:', { breakName, region, country })
+
+        // Update break dropdown if valid data
         if (breakName && breakName !== 'Loading...') {
-          // Find the break dropdown button and update its text
           const breakDropdown = document.querySelector('[data-dropdown-type-value="break"]')
           if (breakDropdown) {
             const breakButton = breakDropdown.querySelector('[data-dropdown-target="button"]')
             if (breakButton) {
               breakButton.textContent = breakName
               console.log(`✅ Updated break button text to: ${breakName}`)
+            }
+          }
+        }
+
+        // Update region dropdown - use 'All Regions' if no region data
+        let regionText = region
+        if (!region || region === '--' || region === 'Loading...') {
+          regionText = 'All Regions'
+        }
+
+        const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
+        if (regionDropdown) {
+          const regionButton = regionDropdown.querySelector('[data-dropdown-target="button"]')
+          if (regionButton) {
+            regionButton.textContent = regionText
+            console.log(`✅ Updated region button text to: ${regionText}`)
+          }
+        }
+
+        // Update country dropdown if valid data
+        if (country && country !== '--' && country !== 'Loading...') {
+          const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
+          if (countryDropdown) {
+            const countryButton = countryDropdown.querySelector('[data-dropdown-target="button"]')
+            if (countryButton) {
+              countryButton.textContent = country
+              console.log(`✅ Updated country button text to: ${country}`)
             }
           }
         }
