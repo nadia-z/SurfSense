@@ -1,0 +1,10 @@
+svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.swell-value {
+  font-family: 'Self Modern', sans-serif;
+  color: black;
+  font-size: 1rem;
+}

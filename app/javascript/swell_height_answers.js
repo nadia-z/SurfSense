@@ -2,8 +2,8 @@ const answers = [
   "The swell might be too small to be surfable.",
   "These waves are typically gentle, with a slow breaking motion. They offer a good balance of challenge and safety for beginners.",
   "Some beginners might be comfortable with waves in this range, especially if they have some prior experience or good swimming skills. However, it's important to assess your comfort level and be aware that these waves can be a bit more powerful.",
-  "Waves of this size are usually considered too big for beginners, as they can be difficult to manage and potentially dangerous."
-];
+  "Waves of this size are usually considered too big for beginners, as they can be difficult to manage and potentially dangerous.",
+  "Generally waves of this size are recommended for intermediate surfers, and even experienced  beginners might find  them challenging."];
 
 export function findAnswerToSwellHeight(swellHeight) {
   if (swellHeight >= 0 && swellHeight <= 0.3) {
@@ -14,8 +14,10 @@ export function findAnswerToSwellHeight(swellHeight) {
     return answers[2];
   } else if (swellHeight > 0.9 && swellHeight <= 1.2) {
     return answers[3];
-  } else {
+  } else if (swellHeight > 1.2 && swellHeight <= 1.7) {
     return answers[4];
+  } else {
+    return answers[5];
   }
 }
 
