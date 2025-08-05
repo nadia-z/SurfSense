@@ -1,19 +1,19 @@
-import { Controller } from "@hotwired/stimulus"
-import { createDefs, applyBlur, removeBlur, addPaddingRect } from "../flowchart_effects"
-import { initializeNodeClickListeners } from "../flowchart_interactions"
-import { findAnswerToSwellHeight, updateSwellHeightAnswer } from "../swell_height_answers";
-// Connects to data-controller="forecast"
-export default class extends Controller {
+  import { Controller } from "@hotwired/stimulus"
+  import { createDefs, applyBlur, removeBlur, addPaddingRect } from "../flowchart_effects"
+  import { initializeNodeClickListeners } from "../flowchart_interactions"
+  import { findAnswerToSwellHeight, updateSwellHeightAnswer } from "../swell_height_answers";
+  // Connects to data-controller="forecast"
+  export default class extends Controller {
     static targets = ["card"]
 
     connect() {
       this.currentForecastData = null // Store forecast data for saving
 
-      document.addEventListener("timeSlot:selected", (event) => {
+    document.addEventListener("timeSlot:selected", (event) => {
         this.currentForecastData = event.detail // Store the data
-        this.showFlowchartWithUpdatedData(event.detail);
+    this.showFlowchartWithUpdatedData(event.detail);
       })
-    }
+}
 
     selectCard(event) {
       event.preventDefault()
@@ -97,7 +97,7 @@ export default class extends Controller {
       elementToDeactivate.removeAttribute('data-action')
     }
 
-    showFlowchartWithUpdatedData(data) {
+   showFlowchartWithUpdatedData(data) {
   // Access all the weather values from the data object
     const time = data.time;
     const swellHeight = data.swellHeight;
@@ -111,11 +111,11 @@ export default class extends Controller {
     const temperature = data.temperature;
     const tide = data.tide;
 
-        const breakCardContainer = document.getElementById("break-cards-container");
-        if (breakCardContainer) {
-          breakCardContainer.innerHTML = ""; // clear cards
-          breakCardContainer.style.display = "none";
-        }
+      const breakCardContainer = document.getElementById("break-cards-container");
+      if (breakCardContainer) {
+        breakCardContainer.innerHTML = ""; // clear cards
+        breakCardContainer.style.display = "none";
+      }
 
 
       fetch("/flowchart.svg")
@@ -137,19 +137,22 @@ export default class extends Controller {
           let waveGroup = parsedSvg.getElementById("wave-value");
           let windGroup = parsedSvg.getElementById("wind-value");
           let timeGroup = parsedSvg.getElementById("time-value");
+          let tideGroup = parsedSvg.getElementById("tide-value");
 
           createDefs(parsedSvg)
           const edges = parsedSvg.querySelectorAll('[id^="e-"]')
           const nodes = parsedSvg.querySelectorAll('[id^="sn-"], [id^="qsn-"]')
+          console.log("nodes:", nodes)
 
           this.hideAllElements(edges, nodes)
           this.showNodesAndEdges(nodes, parsedSvg, [0, 1, 2, 3])
-          this.blurNodes(nodes, [4, 8])
-          initializeNodeClickListeners(nodes, edges, parsedSvg, { applyBlur, removeBlur })
+          this.blurNodes(nodes, [4, 13, 30])
+          initializeNodeClickListeners(nodes, edges, parsedSvg, { applyBlur, removeBlur }, swellHeight)
+          this.updateTimeGroupText(timeGroup, time)
           this.updateSwellGroupText(swellGroup, swellHeight, swellPeriod, swellDirection)
           this.updateWaveGroupText(waveGroup, waveHeight, wavePeriod, waveDirection)
           this.updateWindGroupText(windGroup, windSpeed, windDirection)
-          this.updateTimeGroupText(timeGroup, time)
+          this.updateTideGroupText(tideGroup, tide)
 
           // added in order to inject the 'save-forecast button' in the SVG
           // After SVG is loaded and appended, attach the event listener
@@ -203,7 +206,7 @@ export default class extends Controller {
         node.style.pointerEvents = "none"
       })
     }
-    // update Group value function needs to be refactored, to stay dry
+    // update Group value function needs to be refactored, currently repeating all
     // find swellGroup value
     updateSwellGroupText(swellGroup, swellHeight, swellPeriod, swellDirection) {
       if (!swellGroup || swellHeight == null || swellPeriod == null || !swellDirection) return;
@@ -233,7 +236,7 @@ export default class extends Controller {
         swellGroup.parentNode.replaceChild(newText, swellGroup)
   }
 
-    updateWaveGroupText(waveGroup, waveHeight, wavePeriod, waveDirection) {
+   updateWaveGroupText(waveGroup, waveHeight, wavePeriod, waveDirection) {
       if (!waveGroup || waveHeight == null || wavePeriod == null || !waveDirection) return;
 
       // Find position of original group element
@@ -285,12 +288,11 @@ export default class extends Controller {
         newText.setAttribute("y", originalY);
         newText.setAttribute("text-anchor", "middle");
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
-        // newText.textContent = `${windSpeed.toFixed(1)}km/h ${windDirection}`;
-        newText.textContent = "to be updated";
+        newText.textContent = `${windSpeed.toFixed(1)}km/h ${windDirection}`;
         windGroup.parentNode.replaceChild(newText, windGroup)
   }
 
-    updateTimeGroupText(timeGroup, time) {
+     updateTimeGroupText(timeGroup, time) {
       if (!timeGroup || time == null) return;
 
       // Find position of original group element
@@ -316,6 +318,33 @@ export default class extends Controller {
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${time}`;
         timeGroup.parentNode.replaceChild(newText, timeGroup)
+  }
+   updateTideGroupText(tideGroup, tide) {
+      if (!tideGroup || tide == null) return;
+
+      // Find position of original group element
+      let originalX = tideGroup.getAttribute("x");
+      let originalY = tideGroup.getAttribute("y");
+
+      if (!originalX || !originalY) {
+        const bbox = tideGroup.getBBox?.();
+        if (bbox) {
+          originalX = bbox.x + bbox.width / 2;
+          originalY = bbox.y + bbox.height / 2 + 8;
+        } else {
+          originalX = 110; // fallback value
+          originalY = 400;
+        }
+      }
+
+        const newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        newText.setAttribute("id", "tide-value");
+        newText.setAttribute("x", originalX);
+        newText.setAttribute("y", originalY);
+        newText.setAttribute("text-anchor", "middle");
+        newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
+        newText.textContent = `${tide}`;
+        tideGroup.parentNode.replaceChild(newText, tideGroup)
   }
 
   saveForecast() {
