@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_04_080302) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_04_221126) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -57,18 +57,24 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_04_080302) do
 
   create_table "selected_forecasts", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "location_id", null: false
-    t.time "time_slot"
+    t.string "time_slot"
     t.boolean "saved"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "swellDirection"
-    t.integer "swellHeight"
+    t.string "swellDirection"
+    t.float "swellHeight"
     t.float "swellPeriod"
-    t.integer "waveDirection"
+    t.string "waveDirection"
     t.float "waveHeight"
     t.float "wavePeriod"
-    t.index ["location_id"], name: "index_selected_forecasts_on_location_id"
+    t.float "wind_speed"
+    t.string "wind_direction"
+    t.float "temperature"
+    t.string "tide"
+    t.string "region"
+    t.string "country"
+    t.string "break"
+    t.index ["user_id", "region", "country", "break", "time_slot"], name: "unique_forecast_per_user_location_time_new", unique: true
     t.index ["user_id"], name: "index_selected_forecasts_on_user_id"
   end
 
@@ -89,6 +95,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_04_080302) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "locations", "users"
-  add_foreign_key "selected_forecasts", "locations"
   add_foreign_key "selected_forecasts", "users"
 end

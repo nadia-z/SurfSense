@@ -363,6 +363,8 @@ export default class extends Controller {
         clone.querySelector('[data-weather="tide-current"]').textContent = tideText;
 
         timeSlotsContainer.appendChild(clone)
+
+
       }
     })
   }
