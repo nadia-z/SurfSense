@@ -16,12 +16,15 @@
       <%else%>
         <img class="mt-3" src="#" alt="" width="150px" height="150px"/>
       <%end%>
-      <strong class="mt-3">profile picture</strong>
 
-      <form class="pb-3" data-controller="account" action="<%= user_path(current_user)%>" method="post">
-        <button data-account-target="Rem_btn" data-action="click->account#toggle" id="delete-btn" class="btn btn-secondary">remove picture</button>
-        <input data-account-target="Del_btn" type="submit" value="are you sure" class="btn btn-danger d-none" />
-      </form>
+      <strong class="mt-3">profile picture</strong>
+      <%if @user.photo.attached?%>
+        <form class="pb-3" data-controller="account" action="<%= user_path(@user)%>" method="post">
+          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+          <button type="button" data-account-target="Rem_btn" data-action="click->account#toggle" class="btn btn-secondary">remove picture</button>
+          <input data-account-target="Del_btn" type="submit" value="are you sure" class="btn btn-danger d-none" />
+        </form>
+      <%end%>
     </div>
   </div>
 </div>
