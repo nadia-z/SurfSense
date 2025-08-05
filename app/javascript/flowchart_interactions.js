@@ -59,7 +59,6 @@ export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHe
         const normalizedNodeId = nodeId.startsWith("005-") ? "005" : nodeId;
 
         if (fromId === normalizedNodeId) {
-          console.log(fromId, nodeId)
           edge.style.visibility = "visible";
           edge.setAttribute("stroke", "#F3F1BA");
           edge.setAttribute("stroke-width", "1");

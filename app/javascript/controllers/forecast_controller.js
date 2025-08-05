@@ -1,7 +1,6 @@
   import { Controller } from "@hotwired/stimulus"
   import { createDefs, applyBlur, removeBlur, addPaddingRect } from "../flowchart_effects"
   import { initializeNodeClickListeners } from "../flowchart_interactions"
-  import { findAnswerToSwellHeight, updateSwellHeightAnswer } from "../swell_height_answers";
   // Connects to data-controller="forecast"
   export default class extends Controller {
     static targets = ["card"]
@@ -142,7 +141,6 @@
           createDefs(parsedSvg)
           const edges = parsedSvg.querySelectorAll('[id^="e-"]')
           const nodes = parsedSvg.querySelectorAll('[id^="sn-"], [id^="qsn-"]')
-          console.log("nodes:", nodes)
 
           this.hideAllElements(edges, nodes)
           this.showNodesAndEdges(nodes, parsedSvg, [0, 1, 2, 3])
