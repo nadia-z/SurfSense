@@ -1,4 +1,4 @@
-export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHeight) {
+export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHeight, swellPeriod) {
 
   const { applyBlur, removeBlur } = helpers;
 
@@ -56,9 +56,12 @@ export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHe
 
         // normalization so that the conditional nodes for swell that starts
         // with 005-a1 etc can meet condition
-        const normalizedNodeId = nodeId.startsWith("005-") ? "005" : nodeId;
+        const normalizedSwellHeightNodeId = nodeId.startsWith("005-") ? "005" : nodeId;
+        const normalizedSwellPeriodNodeId = nodeId.startsWith("006-") ? "006" : nodeId;
 
-        if (fromId === normalizedNodeId) {
+        if (fromId === nodeId ||
+            fromId === normalizedSwellHeightNodeId ||
+            fromId === normalizedSwellPeriodNodeId) {
           edge.style.visibility = "visible";
           edge.setAttribute("stroke", "#F3F1BA");
           edge.setAttribute("stroke-width", "1");
@@ -93,6 +96,7 @@ export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHe
           else if (swellHeight > 0.6 && swellHeight <= 0.9) index = 2;
           else if (swellHeight > 0.9 && swellHeight <= 1.2) index = 3;
           else if (swellHeight > 1.2 && swellHeight <= 1.7) index = 4;
+          else if (swellHeight > 1.7) index = 5;
 
           nextNode = swellHeightAnswerNodes[index];
 
@@ -105,7 +109,47 @@ export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHe
             revealedNodes.add(nextNode.id);
           }
 
-        } else if (nextNode) {
+        }
+        // Handle conditional swell answer nodes
+        else  if (toId === "006") {
+            // This is the group for conditional swell answers
+            const swellPeriodAnswerNodes = [
+              svg.getElementById("sn-006-a0"),
+              svg.getElementById("sn-006-a1"),
+              svg.getElementById("sn-006-a2"),
+              svg.getElementById("sn-006-a3"),
+              svg.getElementById("sn-006-a4"),
+            ];
+
+          // Hide all first
+          swellPeriodAnswerNodes.forEach(n => {
+            if (n) {
+              n.style.visibility = "hidden";
+              n.setAttribute("filter", "url(#blur-effect)");
+              n.style.pointerEvents = "none";
+            }
+          });
+
+          let index = 4;
+          if (swellPeriod >= 0 && swellPeriod <= 8) index = 0;
+          else if (swellPeriod > 8 && swellPeriod <= 10) index = 1;
+          else if (swellPeriod > 10 && swellPeriod <= 13) index = 2;
+          else if (swellPeriod > 13 && swellPeriod <= 15) index = 3;
+          else if (swellPeriod > 15) index = 4;
+
+          nextNode = swellPeriodAnswerNodes[index];
+
+          if (nextNode) {
+            nextNode.style.visibility = "visible";
+            nextNode.removeAttribute("filter");
+            const target = nextNode.querySelector("path, text");
+            if (target) target.setAttribute("fill", "#F3F1BA");
+            nextNode.style.pointerEvents = "auto";
+            revealedNodes.add(nextNode.id);
+          }
+
+        }
+        else if (nextNode) {
           // Regular node logic
           nextNode.style.visibility = "visible";
           nextNode.removeAttribute("filter");
