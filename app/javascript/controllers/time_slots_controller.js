@@ -43,16 +43,16 @@ export default class extends Controller {
 
     const data = {
       time: clickedSlot.querySelector('[data-weather="time"]')?.textContent || "",
-      swellHeight: parseFloat(clickedSlot.querySelector('[data-weather="swell-height"]')?.textContent || "0"),
-      swellPeriod: parseFloat(clickedSlot.querySelector('[data-weather="swell-period"]')?.textContent || "0"),
-      swellDirection: clickedSlot.querySelector('[data-weather="swell-direction"]')?.textContent || "",
-      waveHeight: parseFloat(clickedSlot.querySelector('[data-weather="wave-height"]')?.textContent || "0"),
-      wavePeriod: parseFloat(clickedSlot.querySelector('[data-weather="wave-period"]')?.textContent || "0"),
-      waveDirection: clickedSlot.querySelector('[data-weather="wave-direction"]')?.textContent || "",
-      windSpeed: parseFloat(clickedSlot.querySelector('[data-weather="wind-speed"]')?.textContent || "0"),
-      windDirection: clickedSlot.querySelector('[data-weather="wind-direction"]')?.textContent || "",
-      temperature: parseFloat(clickedSlot.querySelector('[data-weather="temperature"]')?.textContent || "0"),
-      tide: clickedSlot.querySelector('[data-weather="tide-current"]')?.textContent || ""
+      swellHeight: parseFloat(clickedSlot.querySelector('[data-weather="swell-height"]')?.textContent || "n.a"),
+      swellPeriod: parseFloat(clickedSlot.querySelector('[data-weather="swell-period"]')?.textContent || "n.a"),
+      swellDirection: clickedSlot.querySelector('[data-weather="swell-direction"]')?.textContent || "n.a",
+      waveHeight: parseFloat(clickedSlot.querySelector('[data-weather="wave-height"]')?.textContent || "n.a"),
+      wavePeriod: parseFloat(clickedSlot.querySelector('[data-weather="wave-period"]')?.textContent || "n.a"),
+      waveDirection: clickedSlot.querySelector('[data-weather="wave-direction"]')?.textContent || "n.a",
+      windSpeed: parseFloat(clickedSlot.querySelector('[data-weather="wind-speed"]')?.textContent || "n.a"),
+      windDirection: clickedSlot.querySelector('[data-weather="wind-direction"]')?.textContent || "n.a",
+      temperature: parseFloat(clickedSlot.querySelector('[data-weather="temperature"]')?.textContent || "n.a"),
+      tide: clickedSlot.querySelector('[data-weather="tide-current"]')?.textContent || "n.a"
     };
 
     // Debug the tide value specifically
