@@ -2,24 +2,31 @@
 
 <div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
   <div class="offcanvas-header">
-    <h4 class="offcanvas-title" id="staticBackdropLabel"><strong>SurfSense</strong></h4>
+        <%= image_tag "SurfSense_logo.svg", style: "width: 150px; margin-top: 5px" %>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
       <div>
-        <p>Surf forecasts can be hard to interpret when you're just starting to use them. Swell, wind, tides, period...
+        <p>Surf forecasts can be hard to interpret when you're just starting to use them.
           And that confusion can lead to disappointing sessions – or worse, unsafe ones.
-          SurfSense is a guided surf forecast aimed at helping beginner surfers learn how to read and use surf data.</p>
+          SurfSense is a guided surf forecast aimed at helping beginner surfers learn how
+          to read and use marine & weather forecast data.</p>
         <div class="mt-5">
         <h5><strong>How It Works</strong></h5>
-        <p style="font-weight: bold"><strong>1 Choose your surf spot.</strong></p>
-        <p>Just like any forecast tool—start by picking the location you want to surf.</p>
-        <p><strong>2 Select a time slot.</strong></p>
-        <p>Choose the day and time you're considering paddling out.</p>
-        <p><strong>3 Explore the forecast interactively.</strong></p>
-        <p>Click on the info nodes to reveal the information you need. We’ll guide you through the meaning behind each forecast variable.</p>
-        <p><strong>4 Build experience through comparison.</strong></p>
-        <p>Save the forecast before your session and rate it afterward. Was it epic or a wipeout? Comparing your rating with the actual forecast helps you develop a feel for how the numbers translate into real surf.</p>
+        <p style="font-weight: bold"><strong>1 Choose your surf spot</strong></p>
+        <%= image_tag "01_pick.png", style: "width: 250px; display: block; margin: 0 auto" %>
+        <p class="mb-5">Just like with any forecast tool, start by picking the location you want to surf at.</p>
+        <p class="mb-0"><strong>2 Select a time slot</strong></p>
+        <%= image_tag "02_time.png",  class: "mb-2", style: "width: 250px; display: block; margin: 0 auto" %>
+        <p class="mb-5">Choose the time you're considering paddling out and start by focusing on this data only.</p>
+        <p><strong>3 Explore the forecast interactively</strong></p>
+        <%= image_tag "03_graph.png", style: "width: 200px; display: block; margin: 0 auto" %>
+        <p class="mb-5">Click on the info nodes to reveal the information you need. The Graph guides you through the meaning behind each forecast variable.</p>
+        <p><strong>4 Build experience through comparison</strong></p>
+        <%= image_tag "04_save.png", style: "width: 200px; display: block; margin: 0 auto" %>
+        <p class="mb-5">Save the forecast before your session and rate it afterward. Was it epic or a wipeout?
+          Comparing your rating with the actual forecast helps you develop a feel for how the numbers
+          translate into real surf.</p>
       </div>
       </div>
   <div>
@@ -30,7 +37,7 @@
 
 
 <div class="home-container">
-  <h3 class="page-title home">A guided surf-forecast for beginner surfer</h3>
+  <h3 class="page-title home">A guided surf-forecast for beginner surfers</h3>
   <div class="search-wrapper">
 
 <!--!     COUNTRY BUTTON AND DROPDOWN     -->
