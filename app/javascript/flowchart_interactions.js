@@ -1,4 +1,4 @@
-export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHeight, swellPeriod) {
+export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHeight, swellPeriod, swellDirection) {
 
   const { applyBlur, removeBlur } = helpers;
 
@@ -58,10 +58,12 @@ export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHe
         // with 005-a1 etc can meet condition
         const normalizedSwellHeightNodeId = nodeId.startsWith("005-") ? "005" : nodeId;
         const normalizedSwellPeriodNodeId = nodeId.startsWith("006-") ? "006" : nodeId;
+        const normalizedSwellDirectionNodeId = nodeId.startsWith("007-") ? "007" : nodeId;
 
         if (fromId === nodeId ||
             fromId === normalizedSwellHeightNodeId ||
-            fromId === normalizedSwellPeriodNodeId) {
+            fromId === normalizedSwellPeriodNodeId ||
+            fromId === normalizedSwellDirectionNodeId) {
           edge.style.visibility = "visible";
           edge.setAttribute("stroke", "#F3F1BA");
           edge.setAttribute("stroke-width", "1");
@@ -138,6 +140,66 @@ export function initializeNodeClickListeners(nodes, edges, svg, helpers, swellHe
           else if (swellPeriod > 15) index = 4;
 
           nextNode = swellPeriodAnswerNodes[index];
+
+          if (nextNode) {
+            nextNode.style.visibility = "visible";
+            nextNode.removeAttribute("filter");
+            const target = nextNode.querySelector("path, text");
+            if (target) target.setAttribute("fill", "#F3F1BA");
+            nextNode.style.pointerEvents = "auto";
+            revealedNodes.add(nextNode.id);
+          }
+
+        }
+        // Handle conditional swell direction nodes
+        else  if (toId === "007") {
+            // This is the group for conditional swell answers
+            const swellDirectionAnswerNodes = [
+              svg.getElementById("sn-007-a0"),
+              svg.getElementById("sn-007-a1"),
+              svg.getElementById("sn-007-a2"),
+              svg.getElementById("sn-007-a3"),
+              svg.getElementById("sn-007-a4"),
+              svg.getElementById("sn-007-a5"),
+              svg.getElementById("sn-007-a6"),
+              svg.getElementById("sn-007-a7"),
+              svg.getElementById("sn-007-a8"),
+              svg.getElementById("sn-007-a9"),
+              svg.getElementById("sn-007-a10"),
+              svg.getElementById("sn-007-a11"),
+              svg.getElementById("sn-007-a12"),
+              svg.getElementById("sn-007-a13"),
+              svg.getElementById("sn-007-a14"),
+              svg.getElementById("sn-007-a15")
+            ];
+
+          // Hide all first
+          swellDirectionAnswerNodes.forEach(n => {
+            if (n) {
+              n.style.visibility = "hidden";
+              n.setAttribute("filter", "url(#blur-effect)");
+              n.style.pointerEvents = "none";
+            }
+          });
+          let index = 15;
+          if (swellDirection === 'N') index = 0;
+          else if (swellDirection === 'NNE') index = 1;
+          else if (swellDirection === 'NE') index = 2;
+          else if (swellDirection === 'ENE') index = 3;
+          else if (swellDirection === 'E') index = 4;
+          else if (swellDirection === 'ESE') index = 5;
+          else if (swellDirection === 'SE') index = 6;
+          else if (swellDirection === 'SSE') index = 7;
+          else if (swellDirection === 'S') index = 8;
+          else if (swellDirection === 'SSW') index = 9;
+          else if (swellDirection === 'SW') index = 10;
+          else if (swellDirection === 'WSW') index = 11;
+          else if (swellDirection === 'W') index = 12;
+          else if (swellDirection === 'WNW') index = 13;
+          else if (swellDirection === 'NW') index = 14;
+          else if (swellDirection === 'NNW') index = 15;
+
+          nextNode = swellDirectionAnswerNodes[index];
 
           if (nextNode) {
             nextNode.style.visibility = "visible";
