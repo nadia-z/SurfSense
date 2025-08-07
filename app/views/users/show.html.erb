@@ -14,7 +14,7 @@
       <%if @user.photo.attached?%>
         <%= cl_image_tag @user.photo.key, height:150, width:150%>
       <%else%>
-        <img class="mt-3" src="#" alt="" width="150px" height="150px"/>
+        <%= image_tag "default pic", alt: "profile picture", width:"150px", hegit:"150px", class:"border"%>
       <%end%>
 
       <strong class="mt-3">profile picture</strong>
