@@ -23,16 +23,16 @@ puts("Seeding users...")
 
 user1 = User.create!(
   email: "nicola.bergamaschi@gmail.com",
-  password: "password123",
+  password: "pass123",
   first_name: "Nicola",
   last_name: "Bergamaschi"
 )
 
 user2 = User.create!(
-  email: "user2@example.com",
-  password: "password123",
-  first_name: "Jane",
-  last_name: "Smith"
+  email: "nzeissig@googlemail.com",
+  password: "pass123",
+  first_name: "Nadia",
+  last_name: "Zeissig"
 )
 
 puts("Users created succesfully✅")
@@ -58,6 +58,26 @@ location2 = Location.create!({
   suggested: true
 })
 
+location3 = Location.create!(
+  latitude: 37.0654,
+  longitude: -8.8101,
+  user: user2,
+  break: "Boca do rio",
+  region: "Algarve",
+  country: "Portugal",
+  suggested: true
+)
+
+location3 = Location.create!({
+  latitude: 28.1511,
+  longitude: -15.5334,
+  user: user2,
+  break: "Los Enanos",
+  region: "Gran Canaria",
+  country: "Spain",
+  suggested: true
+})
+
 puts("Locations created succesfully✅")
 puts("Seeding SelectedForecasts...")
 
@@ -76,9 +96,9 @@ SelectedForecast.create!(
   wind_direction: 'ENE',
   temperature: 28.5,
   tide: 'Mid-Low',
-  country: 'Senegal',
-  region: 'All Regions',
-  break: 'Amazing break 2000'
+  country: 'Canary',
+  region: 'Gran Canaria',
+  break: 'Los enanos'
 )
 
 SelectedForecast.create!({
@@ -95,9 +115,47 @@ SelectedForecast.create!({
   wind_direction: 'ESE',
   temperature: 15.5,
   tide: 'High',
-  country: 'Norway',
-  region: 'All Regions',
-  break: 'Akretorniiz'
+  country: 'Canary',
+  region: 'Gran Canaria',
+  break: 'Playa del hombre'
+})
+
+SelectedForecast.create!(
+  user: user2,
+  time_slot: "9AM",
+  saved: true,
+  swellDirection: 'ENE',
+  swellHeight: 3,
+  swellPeriod: 12.5,
+  waveDirection: 'WSW',
+  waveHeight: 2.5,
+  wavePeriod: 8.0,
+  wind_speed: 20.50,
+  wind_direction: 'ENE',
+  temperature: 28.5,
+  tide: 'Mid-Low',
+  country: 'Canary',
+  region: 'Gran Canaria',
+  break: 'Los enanos'
+)
+
+SelectedForecast.create!({
+  user: user2,
+  time_slot: "6PM",
+  saved: true,
+  swellDirection: 'SE',
+  swellHeight: 4,
+  swellPeriod: 20.5,
+  waveDirection: 'NNE',
+  waveHeight: 1.5,
+  wavePeriod: 5.0,
+  wind_speed: 10.50,
+  wind_direction: 'ESE',
+  temperature: 15.5,
+  tide: 'High',
+  country: 'Canary',
+  region: 'Gran Canaria',
+  break: 'Playa del hombre'
 })
 
 puts("Forecasts created succesfully✅")

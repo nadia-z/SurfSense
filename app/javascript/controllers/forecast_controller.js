@@ -29,7 +29,7 @@
       // Placeholder for logic
     }
 
-    toggleLongForecastInfo(event) {
+    toggleLongForecastInfo() {
       const forecastContainer = document.getElementById("forecast-container")
       forecastContainer.style.display = "grid"
 
@@ -39,12 +39,21 @@
       savedForecastContainer.style.display = 'none'
     }
 
+    displayComment() {
+      const comment = document.querySelector('comment')
+      comment.addEventListener('click', () => {
+        comment.style.display = "block"
+      })
+    }
+
     focusOnCard(event) {
+      const comments = document.querySelector('p.comments')
+      comments.style.display = 'block'
       const cardsContainer = document.getElementById("break-cards-container")
       cardsContainer.innerHTML = ""
       cardsContainer.insertBefore(event.currentTarget.parentElement, null)
-      this.toggleLongForecastInfo(event)
-      this.deactivateClickFunctionalities(event)
+      this.toggleLongForecastInfo()
+      this.deactivateClickFunctionalities()
 
       // Update the break dropdown button with the selected break name
       this.updateBreakButtonFromCard(event.currentTarget)
