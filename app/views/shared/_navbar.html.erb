@@ -15,7 +15,7 @@
           <a href="#" class="avatar" id="navbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <!--shows pfp if available-->
             <%if current_user.photo.attached?%>
-              <%= cl_image_tag current_user.photo.key,class:"avatar border border-dark", height: 40%>
+              <%= cl_image_tag current_user.photo.key,class:"avatar border border-light", height: 40 %>
             <%else%>
               <%= image_tag "default pic.png", class: "avatar", alt: "dropdown menu" %>
             <%end%>

@@ -16,7 +16,7 @@ export default class extends Controller {
     // If this instance has locations data, make it globally available
     if (this.locationsData && this.locationsData.length > 0) {
       window.globalSavedLocations = this.locationsData
-      this.visualizeSaved()
+      this.visualizeSavedLocations()
     } else if (window.globalSavedLocations) {
       // If no local data but global data exists, use global data
       this.locationsData = window.globalSavedLocations
@@ -311,7 +311,7 @@ export default class extends Controller {
 
   }
 
-  visualizeSaved() {
+  visualizeSavedLocations() {
     // Don't show anything if there are no locations to display
     if (!this.locationsData || this.locationsData.length === 0) {
       return
@@ -349,7 +349,7 @@ export default class extends Controller {
 
     // Add a header for saved locations
     const savedHeader = document.createElement('h3')
-    savedHeader.textContent = 'Your Saved Locations'
+    savedHeader.textContent = 'Your Favourite Locations'
     savedHeader.className = 'saved-locations-header mt-4 mb-3'
     cardsContainer.appendChild(savedHeader)
 

@@ -7,6 +7,7 @@ class LocationsController < ApplicationController
     # this code below allows us access to the location index while using the same
     # GET request from the new method
     @locations = current_user.locations.all
+    @saved_forecasts = current_user.selected_forecasts.all
   end
 
   def create

@@ -1,0 +1,55 @@
+
+<div id="saved-forecast-container" class="saved-forecast-grid">
+
+  <div class="forecast-card-title">
+    <h5 data-weather="break"></h5>
+    <h6 data-weather="country"></h6>
+  </div>
+  <!-- Time labels -->
+  <div class="data-container">
+    <div class="time-slot-grid forecast-labels">
+      <p class="forecast-label">time</p>
+      <p class="forecast-label">swell</p>
+      <p class="forecast-label">wave</p>
+      <p class="forecast-label">wind</p>
+      <p class="forecast-label">tides</p>
+    </div>
+
+    <!-- Container where time slots will be injected by JS -->
+    <div class="time-slots-container"></div>
+
+    <!-- Template used to create time slot elements -->
+    <template id="time-slot">
+      <div class="time-slot-grid">
+        <div class="time fw-bold" data-weather="time-slot"></div>
+        <div class="cell-group">
+          <span><span data-weather="swell-height">n.a.</span>m</span>
+          <span>–</span>
+          <span><span data-weather="swell-period">n.a.</span>m</span>
+          <span>–</span>
+          <span data-weather="swell-direction">n.a.</span>
+        </div>
+        <div class="cell-group">
+          <span><span data-weather="wave-height">n.a.</span>m</span>
+          <span>–</span>
+          <span><span data-weather="wave-period">n.a.</span>m</span>
+          <span>–</span>
+          <span><span data-weather="wave-direction">n.a.</span>
+        </div>
+        <div class="cell-group">
+          <span><span data-weather="wind-speed">n.a.</span>km/h</span>
+          <span>–</span>
+          <span><span data-weather="wind-direction">n.a.</span></span>
+          <span>–</span>
+          <span><span data-weather="temperature">n.a.</span>°C</span>
+        </div>
+        <div class="cell-group">
+          <span><span data-weather="tide-current">n.a.</span></span>
+        </div>
+      </div>
+    </template>
+  </div>
+  <div class="date">
+    <span><span data-weather="date">n.a.</span></span>
+  </div>
+</div>
