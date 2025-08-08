@@ -10,6 +10,10 @@
     max-height: 20vh;
     margin-bottom: 0;
   }
+
+  span {
+    white-space: nowrap;
+  }
 }
 .time-slot-grid {
   display: flex;
@@ -81,7 +85,7 @@
   gap: 4px;
   margin-bottom: 6px;
   width: 100%;
-  max-width: 200px;
+  max-width: 230px;
 }
 .forecast-labels {
   padding: 10px;
