@@ -7,10 +7,7 @@
   font-family: sans-serif;
   max-width: fit-content;
   margin: auto 0px;
-  padding-top: 2rem;
   padding-bottom: 1rem;
-  border-top: 1px solid rgb(210, 210, 210);
-  margin-top: 1rem;
   font-family: 'Self Modern', sans-serif;
   flex-wrap: wrap;
 }
@@ -70,7 +67,12 @@
   justify-self: center;
 }
 
-
+.comments {
+  font-family: "Nunito", "Helvetica", "sans-serif";
+  color:#495057!important;
+  font-size: 1rem !important;
+  font-weight: 600;
+}
 
 
 /* Highlight cells in hovered column */
