@@ -6,6 +6,7 @@ class PagesController < ApplicationController
     locations_data = JSON.parse(file)
 
     @locations = current_user&.locations&.all || []
+    @saved_forecasts = current_user&.selected_forecasts&.all || []
 
     # Create nested structure: countries -> regions -> breaks
     @locations_structure = build_locations_structure(locations_data)

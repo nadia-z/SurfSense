@@ -69,15 +69,19 @@
 <!--! Hidden templates for JavaScript to use -->
 <div style="display: none;">
  <div id="weather-template"
-      data-controller="save-location"
-      data-save-location-locations-value="<%= @locations.to_json %>">
+      data-controller="save-location forecast"
+      data-save-location-locations-value="<%= @locations.to_json %>"
+      data-forecast-saved-forecasts-value="<%= @saved_forecasts.to_json %>">
     <%= render 'shared/weather_display' %>
   </div>
   <div id="card-template"
-       data-controller="forecast save-location"
+       data-controller="save-location"
        data-dropdown-target="card"
        data-save-location-locations-value="<%= @locations.to_json %>"
        data-action="click->forecast#focusOnCard">
     <%= render 'shared/break_card' %>
   </div>
+</div>
+<div id="saved-forecasts-template" style="display: none;">
+  <%= render 'shared/saved_forecast_card' %>
 </div>

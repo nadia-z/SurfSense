@@ -4,15 +4,24 @@
   // Connects to data-controller="forecast"
   export default class extends Controller {
     static targets = ["card"]
+    static values = {savedForecasts: Array}
 
     connect() {
-      this.currentForecastData = null // Store forecast data for saving
+      //loading the saved forecast data coming from backend
+      this.savedForecastData = this.savedForecastsValue
+      // Caching the template for the saved forecast cards display
+      this.savedForecastTemplate = document.querySelector('#saved-forecasts-template')
 
-    document.addEventListener("timeSlot:selected", (event) => {
+      // firing our saved forecast visualisation
+      this.visualizeSavedForecasts()
+      this.handleDropdownClicks()
+
+      this.currentForecastData = null // Store forecast data for saving
+      document.addEventListener("timeSlot:selected", (event) => {
         this.currentForecastData = event.detail // Store the data
-    this.showFlowchartWithUpdatedData(event.detail);
+        this.showFlowchartWithUpdatedData(event.detail);
       })
-}
+    }
 
     selectCard(event) {
       event.preventDefault()
@@ -26,6 +35,8 @@
 
       const currentForecastContainer = document.querySelector('.row')
       currentForecastContainer.style.display = 'none'
+      const savedForecastContainer = document.getElementById('saved-forecast-cards-container')
+      savedForecastContainer.style.display = 'none'
     }
 
     focusOnCard(event) {
@@ -96,8 +107,8 @@
       elementToDeactivate.removeAttribute('data-action')
     }
 
-   showFlowchartWithUpdatedData(data) {
-  // Access all the weather values from the data object
+    showFlowchartWithUpdatedData(data) {
+    // Access all the weather values from the data object
     const time = data.time;
     const swellHeight = data.swellHeight;
     const swellPeriod = data.swellPeriod;
@@ -162,6 +173,32 @@
             })
           }
         })
+    }
+
+    handleDropdownClicks() {
+      // Use event delegation to handle dynamically added dropdown items
+      document.addEventListener('click', (event) => {
+        if (event.target.classList.contains('dropdown-item')) {
+          // Hide flowchart when dropdown is clicked
+          const flowchartContainer = document.getElementById('flowchart')
+          if (flowchartContainer) {
+            flowchartContainer.style.display = 'none'
+            console.log('dropdown clicked - hiding flowchart')
+          }
+
+          // Hide saved forecasts when searching
+          const savedForecastContainer = document.getElementById('saved-forecast-cards-container')
+          if (savedForecastContainer) {
+            savedForecastContainer.style.display = 'none'
+          }
+
+          // Show location cards when searching
+          const breakCardsContainer = document.getElementById('break-cards-container')
+          if (breakCardsContainer) {
+            breakCardsContainer.style.display = 'flex'
+          }
+        }
+      })
     }
 
     hideAllElements(edges, nodes) {
@@ -232,9 +269,9 @@
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${swellHeight.toFixed(1)}m ${swellPeriod.toFixed(1)}s ${swellDirection}`;
         swellGroup.parentNode.replaceChild(newText, swellGroup)
-  }
+    }
 
-   updateWaveGroupText(waveGroup, waveHeight, wavePeriod, waveDirection) {
+    updateWaveGroupText(waveGroup, waveHeight, wavePeriod, waveDirection) {
       if (!waveGroup || waveHeight == null || wavePeriod == null || !waveDirection) return;
 
       // Find position of original group element
@@ -260,7 +297,7 @@
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${waveHeight.toFixed(1)}m ${wavePeriod.toFixed(1)}s ${waveDirection}`;
         waveGroup.parentNode.replaceChild(newText, waveGroup)
-  }
+    }
 
     updateWindGroupText(windGroup, windSpeed, windDirection) {
       if (!windGroup || windSpeed == null || !windDirection) return;
@@ -288,9 +325,9 @@
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${windSpeed.toFixed(1)}km/h ${windDirection}`;
         windGroup.parentNode.replaceChild(newText, windGroup)
-  }
+    }
 
-     updateTimeGroupText(timeGroup, time) {
+    updateTimeGroupText(timeGroup, time) {
       if (!timeGroup || time == null) return;
 
       // Find position of original group element
@@ -316,8 +353,9 @@
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${time}`;
         timeGroup.parentNode.replaceChild(newText, timeGroup)
-  }
-   updateTideGroupText(tideGroup, tide) {
+    }
+
+    updateTideGroupText(tideGroup, tide) {
       if (!tideGroup || tide == null) return;
 
       // Find position of original group element
@@ -343,9 +381,9 @@
         newText.setAttribute("style", "font-family: 'Self Modern', sans-serif; font-size: 1.5rem; fill: black;");
         newText.textContent = `${tide}`;
         tideGroup.parentNode.replaceChild(newText, tideGroup)
-  }
+    }
 
-  saveForecast() {
+    saveForecast() {
     if (!this.currentForecastData) {
       console.warn("No forecast data available. Please select a time slot first.")
       alert("Please select a time slot first to populate forecast data, then try saving again.")
@@ -440,9 +478,9 @@
       this.isSaving = false // Reset saving flag
       this.showSaveError()
     })
-  }
+    }
 
-  getCurrentLocationId() {
+    getCurrentLocationId() {
     // Option 1: Get from URL params (if location ID is in the URL)
     const urlParams = new URLSearchParams(window.location.search)
     let locationId = urlParams.get('location_id')
@@ -535,9 +573,9 @@
     }
 
     return null
-  }
+    }
 
-  getCurrentLocationData() {
+    getCurrentLocationData() {
     // PRIMARY METHOD: Get from dropdown button texts (most reliable)
     const countryDropdown = document.querySelector('[data-dropdown-type-value="country"]')
     const regionDropdown = document.querySelector('[data-dropdown-type-value="region"]')
@@ -631,9 +669,9 @@
     }
 
     return { region: null, country: null, break: null }
-  }
+    }
 
-  showSaveSuccess() {
+    showSaveSuccess() {
     const saveBtn = document.getElementById('btn-save-forecast')
     if (saveBtn) {
       const originalText = saveBtn.textContent
@@ -645,9 +683,9 @@
         saveBtn.style.backgroundColor = ""
       }, 2000)
     }
-  }
+    }
 
-  showSaveError() {
+    showSaveError() {
     const saveBtn = document.getElementById('btn-save-forecast')
     if (saveBtn) {
       const originalText = saveBtn.textContent
@@ -659,6 +697,99 @@
         saveBtn.style.backgroundColor = ""
       }, 2000)
     }
-  }
+    }
 
+    visualizeSavedForecasts() {
+      // Don't show anything if there are no forecasts to display
+      if (!this.savedForecastsValue || this.savedForecastsValue.length === 0) {
+        console.log('No saved forecasts to display')
+        return
+      }
+
+      // Check if template exists
+      if (!this.savedForecastTemplate) {
+        console.error('Saved forecast template not found with id "saved-forecasts-template"')
+        return
+      }
+
+      // Get or create the container for saved forecast cards
+      let savedForecastCardsContainer = document.getElementById('saved-forecast-cards-container')
+      if (!savedForecastCardsContainer) {
+        savedForecastCardsContainer = document.createElement('div')
+        savedForecastCardsContainer.id = 'saved-forecast-cards-container'
+        savedForecastCardsContainer.className = 'saved-forecast-cards'
+
+        // Insert after search wrapper
+        const favouriteLocationshWrapper = document.querySelector('.break-cards')
+        if (favouriteLocationshWrapper) {
+          favouriteLocationshWrapper.insertAdjacentElement('afterend', savedForecastCardsContainer)
+        } else {
+          // Fallback: insert after home container
+          const homeContainer = document.querySelector('.home-container')
+          if (homeContainer) {
+            homeContainer.insertAdjacentElement('afterend', savedForecastCardsContainer)
+          }
+        }
+      }
+
+      // Clear existing content
+      savedForecastCardsContainer.innerHTML = ''
+
+      // Add a header for saved forecasts
+      const savedHeader = document.createElement('h3')
+      savedHeader.textContent = 'Your Saved Forecasts'
+      savedHeader.className = 'saved-forecasts-header mt-4 mb-3'
+      savedForecastCardsContainer.appendChild(savedHeader)
+
+      // Create a card for each saved forecast
+      this.savedForecastData.forEach((savedForecast, index) => {
+        // Clone the entire saved forecast template
+        const savedForecastGrid = this.savedForecastTemplate.querySelector('#saved-forecast-container')
+        const clonedCard = savedForecastGrid.cloneNode(true)
+
+        // Update the ID to be unique
+        clonedCard.id = `saved-forecast-container-${index}`
+
+        // Update location info
+        clonedCard.querySelector('[data-weather="country"]').textContent = savedForecast.country
+        clonedCard.querySelector('[data-weather="break"]').textContent = savedForecast.break
+
+        // Get the time slot template and clone it
+        const timeSlotTemplate = clonedCard.querySelector('#time-slot').content
+        const clonedTimeSlot = document.importNode(timeSlotTemplate, true)
+
+        // Update time slot data
+        clonedTimeSlot.querySelector('[data-weather="time-slot"]').textContent = savedForecast.time_slot
+
+        // Update swell data
+        clonedTimeSlot.querySelector('[data-weather="swell-height"]').textContent = savedForecast.swellHeight
+        clonedTimeSlot.querySelector('[data-weather="swell-period"]').textContent = savedForecast.swellPeriod
+        clonedTimeSlot.querySelector('[data-weather="swell-direction"]').textContent = savedForecast.swellDirection
+
+        // Update wave data
+        clonedTimeSlot.querySelector('[data-weather="wave-height"]').textContent = savedForecast.waveHeight
+        clonedTimeSlot.querySelector('[data-weather="wave-period"]').textContent = savedForecast.wavePeriod
+        clonedTimeSlot.querySelector('[data-weather="wave-direction"]').textContent = savedForecast.waveDirection
+
+        // Update wind data
+        clonedTimeSlot.querySelector('[data-weather="wind-speed"]').textContent = savedForecast.wind_speed
+        clonedTimeSlot.querySelector('[data-weather="wind-direction"]').textContent = savedForecast.wind_direction
+
+        // Update temperature
+        clonedTimeSlot.querySelector('[data-weather="temperature"]').textContent = savedForecast.temperature
+
+        // Update tide
+        clonedTimeSlot.querySelector('[data-weather="tide-current"]').textContent = savedForecast.tide
+
+        // Update date
+        clonedCard.querySelector('[data-weather="date"]').textContent = `Saved: ${savedForecast.created_at.slice(0, 10)}`
+
+        // Append the time slot to the cloned card's time slots container
+        const timeSlotsContainer = clonedCard.querySelector('.time-slots-container')
+        timeSlotsContainer.appendChild(clonedTimeSlot)
+
+        // Append the complete card to the container
+        savedForecastCardsContainer.appendChild(clonedCard)
+      })
+    }
 }

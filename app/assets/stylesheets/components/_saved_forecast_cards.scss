@@ -1,0 +1,119 @@
+.saved-forecast-card {
+    background-color: #f1fefe;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    padding-top: 1.5rem;
+    padding-right: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-width: 300px;
+}
+#saved-forecast-cards-container {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+
+  .saved-forecast-cards {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 1.5rem;
+    margin-top: 7rem;
+    justify-content: center;
+  }
+
+  .saved-forecast-card {
+    background-color:  #f1fefe;
+    border: none;
+    border-radius: 8px;
+  }
+
+  .saved-forecast-grid {
+    background-color: #f1fefe;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    padding-top: 1.5rem;
+    padding-right: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-width: 300px;
+    width: fit-content;
+  }
+
+  .forecast-card-title {
+    text-align: start;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    display:flex;
+    flex-direction: column;
+
+    h5 {
+      margin-bottom: 0.25rem;
+      color: #2c3e50;
+    }
+
+    h6 {
+      color: #2c3e50;
+      font-weight: normal;
+      padding-bottom: 1rem;
+      border-bottom: 1px dotted #2c3e50;
+    }
+  }
+
+  .data-container {
+    display: flex;
+  }
+
+  .time-slot-grid {
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    align-items: center;
+    padding: 0;
+    gap: 0;
+
+    &.forecast-labels {
+      display: grid;
+      grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+      align-items: center;
+      font-family: 'Self Modern', sans-serif;
+      padding: 0;
+      padding-right: 0.5rem;
+
+      .forecast-label {
+        text-align: center;
+        color: #2c3e50;
+        font-size: 0.875rem;
+        margin: 0;
+      }
+    }
+
+    .time {
+      text-align: center;
+      width: fit-content;
+      justify-self: center;
+
+    }
+
+  }
+
+  .forecast-details div{
+    padding: 0.7rem;
+    margin: 0.5rem;
+    background-color: #bde4e6;
+    border-radius: 5px;
+  }
+
+  span {
+    white-space: nowrap;
+  }
+
+  .date {
+    padding-top: 1rem;
+    padding-left: 0.8rem;
+  }
+
+  .date span{
+    font-size: small;
+  }
+}
