@@ -156,7 +156,7 @@
 
           this.hideAllElements(edges, nodes)
           this.showNodesAndEdges(nodes, parsedSvg, [0, 1, 2, 3])
-          this.blurNodes(nodes, [4, 32, 49])
+          this.blurNodes(nodes, [4, 32, 48])
           initializeNodeClickListeners(nodes, edges, parsedSvg, { applyBlur, removeBlur }, swellHeight, swellPeriod, swellDirection)
           this.updateTimeGroupText(timeGroup, time)
           this.updateSwellGroupText(swellGroup, swellHeight, swellPeriod, swellDirection)
