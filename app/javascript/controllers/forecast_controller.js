@@ -47,10 +47,8 @@
     }
 
     focusOnCard(event) {
-      const comments = document.querySelectorAll('p.comments')
-      comments.forEach((comment) => {
-        comment.style.display = 'block'
-      })
+      const comments = document.querySelector('p.comments')
+      comments.style.display = 'block'
       const cardsContainer = document.getElementById("break-cards-container")
       cardsContainer.innerHTML = ""
       cardsContainer.insertBefore(event.currentTarget.parentElement, null)
@@ -132,11 +130,6 @@
     const temperature = data.temperature;
     const tide = data.tide;
 
-    // Reset save state for new forecast data
-    this.isSaving = false
-
-
-
       const breakCardContainer = document.getElementById("break-cards-container");
       if (breakCardContainer) {
         breakCardContainer.innerHTML = ""; // clear cards
@@ -183,21 +176,10 @@
           // added in order to inject the 'save-forecast button' in the SVG
           // After SVG is loaded and appended, attach the event listener
           const saveBtn = parsedSvg.getElementById('btn-save-forecast')
-          const savedBtn = parsedSvg.getElementById('btn-saved-forecast')
-
-          // Initially hide the saved button and show the save button
-          if (savedBtn) {
-            savedBtn.style.display = "none"
-          }
-          if (saveBtn) {
-            saveBtn.style.display = "block"
-          }
-
           if (saveBtn) {
             saveBtn.addEventListener('click', (event) => {
               // Call the save method directly on this controller
               this.saveForecast()
-              // Don't switch buttons here - let showSaveSuccess() handle it after successful save
             })
           }
         })
@@ -424,9 +406,6 @@
     }
 
     this.isSaving = true
-
-    // Show immediate visual feedback that saving is in progress
-    this.showSavingInProgress()
 
     // If tide is empty, try alternative methods to get tide data
     let tideValue = this.currentForecastData.tide || ""
@@ -702,100 +681,31 @@
     return { region: null, country: null, break: null }
     }
 
-    showSavingInProgress() {
-    // Try to get button from SVG first, fallback to document
-    const flowchartSvg = document.getElementById('flowchart')
-    let saveBtn = flowchartSvg ? flowchartSvg.getElementById('btn-save-forecast') : null
-
-    // Fallback to document query if SVG element not found
-    if (!saveBtn) saveBtn = document.getElementById('btn-save-forecast')
-
-    if (saveBtn) {
-      // For SVG elements, find text elements within the button and update them
-      const saveBtnText = saveBtn.querySelector('text')
-      if (saveBtnText) {
-        saveBtnText.textContent = "Saving..."
-        saveBtn.style.opacity = "0.7"
-        saveBtn.style.pointerEvents = "none" // Disable clicks while saving
-      } else {
-        // Fallback for non-SVG elements
-        saveBtn.textContent = "Saving..."
-        saveBtn.style.opacity = "0.7"
-        saveBtn.style.pointerEvents = "none"
-      }
-    }
-    }
-
     showSaveSuccess() {
-    // Try to get buttons from SVG first, fallback to document
-    const flowchartSvg = document.getElementById('flowchart')
-    let saveBtn = flowchartSvg ? flowchartSvg.getElementById('btn-save-forecast') : null
-    let savedBtn = flowchartSvg ? flowchartSvg.getElementById('btn-saved-forecast') : null
+    const saveBtn = document.getElementById('btn-save-forecast')
+    if (saveBtn) {
+      const originalText = saveBtn.textContent
+      saveBtn.textContent = "Saved!"
+      saveBtn.style.backgroundColor = "#28a745"
 
-    // Fallback to document queries if SVG elements not found
-    if (!saveBtn) saveBtn = document.getElementById('btn-save-forecast')
-    if (!savedBtn) savedBtn = document.getElementById('btn-saved-forecast')
-
-    if (saveBtn && savedBtn) {
-      // Reset save button state first
-      saveBtn.style.opacity = "1"
-      saveBtn.style.pointerEvents = "auto"
-
-      // Switch buttons to show saved state
-      saveBtn.style.display = "none"
-      savedBtn.style.display = "block"
-
-      // For SVG elements, find text elements within the button and update them
-      const savedBtnText = savedBtn.querySelector('text')
-      if (savedBtnText) {
-        const originalText = savedBtnText.textContent
-        savedBtnText.textContent = "Saved!"
-        setTimeout(() => {
-          savedBtnText.textContent = originalText
-        }, 2000)
-      }
+      setTimeout(() => {
+        saveBtn.textContent = originalText
+        saveBtn.style.backgroundColor = ""
+      }, 2000)
     }
     }
 
     showSaveError() {
-    // Try to get button from SVG first, fallback to document
-    const flowchartSvg = document.getElementById('flowchart')
-    let saveBtn = flowchartSvg ? flowchartSvg.getElementById('btn-save-forecast') : null
-
-    // Fallback to document query if SVG element not found
-    if (!saveBtn) saveBtn = document.getElementById('btn-save-forecast')
-
+    const saveBtn = document.getElementById('btn-save-forecast')
     if (saveBtn) {
-      // Reset button state
-      saveBtn.style.opacity = "1"
-      saveBtn.style.pointerEvents = "auto"
+      const originalText = saveBtn.textContent
+      saveBtn.textContent = "Error!"
+      saveBtn.style.backgroundColor = "#dc3545"
 
-      // For SVG elements, find text elements within the button and update them
-      const saveBtnText = saveBtn.querySelector('text')
-      if (saveBtnText) {
-        const originalText = saveBtnText.textContent || "Save Forecast"
-        const originalColor = saveBtn.style.fill || ""
-
-        saveBtnText.textContent = "Error!"
-        saveBtn.style.fill = "#dc3545"
-
-        setTimeout(() => {
-          saveBtnText.textContent = originalText
-          saveBtn.style.fill = originalColor
-        }, 2000)
-      } else {
-        // Fallback for non-SVG elements
-        const originalText = saveBtn.textContent || "Save Forecast"
-        const originalColor = saveBtn.style.backgroundColor || ""
-
-        saveBtn.textContent = "Error!"
-        saveBtn.style.backgroundColor = "#dc3545"
-
-        setTimeout(() => {
-          saveBtn.textContent = originalText
-          saveBtn.style.backgroundColor = originalColor
-        }, 2000)
-      }
+      setTimeout(() => {
+        saveBtn.textContent = originalText
+        saveBtn.style.backgroundColor = ""
+      }, 2000)
     }
     }
 
