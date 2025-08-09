@@ -8,30 +8,37 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto">
-        <% if user_signed_in? %>
-          <li class="nav-item dropdown">
-          <a href="#" class="avatar" id="navbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <!--shows pfp if available-->
-            <%if current_user.photo.attached?%>
-              <%= cl_image_tag current_user.photo.key,class:"avatar border border-light", height: 40 %>
-            <%else%>
-              <%= image_tag "default pic.png", class: "avatar", alt: "dropdown menu" %>
-            <%end%>
-          </a>
-            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-              <%= link_to "account_page", user_path(current_user), class: "dropdown-item" %>
-              <%= link_to "change password", edit_user_password_path , class: "dropdown-item" %>
-              <%= link_to "Log out", destroy_user_session_path, data: {turbo_method: :delete}, class: "dropdown-item" %>
-            </div>
-          </li>
-        <% else %>
-          <li class="nav-item">
-            <%= link_to "Login", new_user_session_path, class: "nav-link"%>
-          </li>
-        <% end %>
-      </ul>
+    <div class="right-navbar-buttons" style="display: flex;">
+      <div class="navbar-brand">
+        <%= image_tag "info.svg", style: "margin-top: 15px; width: 25px; margin-top: 5px; cursor: pointer; align-self: center",
+          data: { controller: "offcanvas", action: "click->offcanvas#openOffcanvas" } %>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto">
+          <% if user_signed_in? %>
+            <li class="nav-item dropdown">
+            <a href="#" class="avatar" id="navbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <!--shows pfp if available-->
+              <%if current_user.photo.attached?%>
+                <%= cl_image_tag current_user.photo.key,class:"avatar border border-light", height: 40 %>
+              <%else%>
+                <%= image_tag "default pic.png", class: "avatar", alt: "dropdown menu" %>
+              <%end%>
+            </a>
+              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <%= link_to "account_page", user_path(current_user), class: "dropdown-item" %>
+                <%= link_to "change password", edit_user_password_path , class: "dropdown-item" %>
+                <%= link_to "Log out", destroy_user_session_path, data: {turbo_method: :delete}, class: "dropdown-item" %>
+              </div>
+            </li>
+          <% else %>
+            <li class="nav-item">
+              <%= link_to "Login", new_user_session_path, class: "nav-link"%>
+            </li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
